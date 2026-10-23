@@ -1,0 +1,96 @@
+<Project>
+  <!-- The float64 pass (`mise test:cs:float64`, or `-p:FloatMode=Float64`): a second copy of the
+       tests, built into bin/float64/ and obj/float64/, whose test, mod and game assemblies compute
+       floats in double precision as Mono does with its float32 optimization off
+       (FloatWidener.cs). Every other build, `mise test:cs:float32` and the IDE's included, is the
+       float32 pass. -->
+
+  <ItemGroup>
+    <!-- The widener is a file-based app run by the build, not part of the tests. -->
+    <Compile Remove="$(MSBuildThisFileDirectory)FloatWidener.cs" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(FloatMode)' == 'Float64'">
+    <!-- scripts/check-float64-output.ts expects these two paths. -->
+    <OutputPath>bin\float64\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\float64\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>$(DefineConstants);FLOAT64</DefineConstants>
+    <FloatWidener>dotnet run --file &quot;$(MSBuildThisFileDirectory)FloatWidener.cs&quot; -- &quot;--references=$(ManagedPath)&quot;</FloatWidener>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(FloatMode)' == 'Float64'">
+    <!-- The mod builds once for both passes, into its own output: the widener rewrites its copy in
+         the tests' output. -->
+    <ProjectReference Update="@(ProjectReference)"
+                      GlobalPropertiesToRemove="%(GlobalPropertiesToRemove);FloatMode" />
+  </ItemGroup>
+
+  <!-- The game's assemblies are widened once into obj/float64/, again when the game updates one
+       or the widener changes (Game.dll alone takes seconds), and the tests' output copies them
+       from there.
+       UnityEngine.CoreModule, which the native-call shim loads from its `.original` copy, is
+       widened too, before the shim's load-time rewrite: the shim only gives its externs a body,
+       which holds no float arithmetic, and the rest of the module then runs as under Mono.
+       The widener resolves references in the game's folder, read-only: the shim's
+       UnityEngine.CoreModule is not next to the copies under that name. -->
+  <Target Name="SelectFloatWidenedGameAssemblies" AfterTargets="HoldBackUnityCoreModule"
+          Condition="'$(FloatMode)' == 'Float64'">
+    <ItemGroup>
+      <_FloatWidenedCopyLocal Include="@(ReferenceCopyLocalPaths)"
+                              Condition="'%(Extension)' == '.dll' and $([System.String]::new('%(FullPath)').StartsWith('$(ManagedPath)'))"
+                              Widened="$(IntermediateOutputPath)widened-game\%(Filename)%(Extension)" />
+      <_FloatWidenedCoreModule Include="$(ManagedPath)\UnityEngine.CoreModule.dll"
+                               Widened="$(IntermediateOutputPath)widened-game\UnityEngine.CoreModule.dll" />
+      <_FloatWidenedGameAssembly Include="@(_FloatWidenedCopyLocal);@(_FloatWidenedCoreModule)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Incremental: MSBuild passes only the assemblies newer than their widened copy, or all of
+       them when the widener or this file changed. -->
+  <Target Name="WidenGameAssemblies" AfterTargets="SelectFloatWidenedGameAssemblies"
+          Condition="'$(FloatMode)' == 'Float64'"
+          Inputs="@(_FloatWidenedGameAssembly);$(MSBuildThisFileFullPath);$(MSBuildThisFileDirectory)FloatWidener.cs"
+          Outputs="@(_FloatWidenedGameAssembly->'%(Widened)')">
+    <Copy SourceFiles="@(_FloatWidenedGameAssembly)"
+          DestinationFiles="@(_FloatWidenedGameAssembly->'%(Widened)')" />
+
+    <!-- A copy keeps its source's time, which would leave a copy the widener failed on, or never
+         reached, up to date: back-dated, it is widened again next build. The widener writes each
+         file anew. -->
+    <Touch Files="@(_FloatWidenedGameAssembly->'%(Widened)')" Time="2000-01-01" />
+
+    <WriteLinesToFile File="$(IntermediateOutputPath)float-widened-game.txt"
+                      Lines="@(_FloatWidenedGameAssembly->'%(Widened)')" Overwrite="true" />
+
+    <Exec Command="$(FloatWidener) &quot;@$(IntermediateOutputPath)float-widened-game.txt&quot;"
+          StandardOutputImportance="low" />
+  </Target>
+
+  <Target Name="CopyFloatWidenedGameAssemblies" AfterTargets="WidenGameAssemblies"
+          Condition="'$(FloatMode)' == 'Float64'">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(_FloatWidenedCopyLocal)" />
+      <ReferenceCopyLocalPaths Include="@(_FloatWidenedCopyLocal->'%(Widened)')" />
+      <None Remove="@(None)" Condition="'%(None.Link)' == 'UnityEngine.CoreModule.original'" />
+      <None Include="@(_FloatWidenedCoreModule->'%(Widened)')" Link="UnityEngine.CoreModule.original"
+            CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
+
+  <!-- The tests and the referenced projects are widened in the tests' output, after each copy:
+       the copy step overwrites a widened file, whose size differs from its source. -->
+  <Target Name="WidenTestAssemblies" AfterTargets="CopyFilesToOutputDirectory"
+          Condition="'$(FloatMode)' == 'Float64'">
+    <ItemGroup>
+      <_FloatWidenedTestAssembly Include="$(TargetPath)" />
+      <_FloatWidenedTestAssembly Include="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)')"
+                                 Condition="'%(Extension)' == '.dll' and '%(ReferenceCopyLocalPaths.MSBuildSourceProjectFile)' != ''" />
+    </ItemGroup>
+
+    <WriteLinesToFile File="$(IntermediateOutputPath)float-widened-tests.txt"
+                      Lines="@(_FloatWidenedTestAssembly->'%(FullPath)')" Overwrite="true" />
+
+    <Exec Command="$(FloatWidener) &quot;@$(IntermediateOutputPath)float-widened-tests.txt&quot;"
+          StandardOutputImportance="low" />
+  </Target>
+</Project>

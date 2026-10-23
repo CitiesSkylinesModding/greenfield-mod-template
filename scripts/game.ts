@@ -24,6 +24,7 @@ import { readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import type { BunFile } from 'bun';
+import { requireEnvironment } from './environment';
 import { type LogEntry, parseLog } from './game-log';
 
 const steamAppId = 949_230;
@@ -291,19 +292,6 @@ export async function waitUntil(
   }
 
   return condition();
-}
-
-export function requireEnvironment(name: string): string {
-  const value = process.env[name];
-
-  if (!value) {
-    throw new Error(
-      `${name} environment variable is not set, ensure the CSII Modding Toolchain is installed ` +
-        `correctly (on Linux, \`mise setup:linux\`).`
-    );
-  }
-
-  return value;
 }
 
 /**

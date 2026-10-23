@@ -59,4 +59,6 @@
             CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
   </Target>
+
+  <Import Project="Float64\Float64.targets" />
 </Project>

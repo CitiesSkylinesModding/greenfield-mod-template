@@ -167,9 +167,29 @@ description = "Runs the full test suite: the off-engine C# tests, the UI tests, 
 depends = ["test:cs", "test:ui", "test:scripts"]
 
 [tasks."test:cs"]
-description = "Runs the off-engine C# tests on .NET 10 with xUnit. Skips the UI build, the mod post-processor, and the deploy step (none are needed by the tests)."
+description = "Runs the off-engine C# tests on .NET 10 with xUnit, in two passes: float32, then float64."
+# Sequential: both passes build the mod, into the same output.
+run = ["mise test:cs:float32", "mise test:cs:float64"]
+
+[tasks."test:cs:float32"]
+description = "Runs the off-engine C# tests with floats in single precision, as CoreCLR and Burst compute them: the pass `dotnet test` and the IDE run. Skips the UI build, the mod post-processor, and the deploy step (none are needed by the tests)."
 raw = true
 run = "dotnet test --project ToveruxModTemplate.Tests -p:SkipBuildUI=true -p:SkipModPostProcess=true"
+
+[tasks."test:cs:float64"]
+description = "Runs the off-engine C# tests with floats in double precision, as the game's Mono computes them outside Burst (ToveruxModTemplate.Tests/Float64/), then checks that no widened assembly left the tests' output."
+# The first run after a clean or a game update widens the game's assemblies, about 10 s; the next
+# ones add under a second to the float32 pass's time.
+# The check runs after, as a task of its own: mise hands the task's arguments (a test filter) to the
+# last command of a `run` list.
+depends_post = ["test:cs:float64:check"]
+raw = true
+run = "dotnet test --project ToveruxModTemplate.Tests -p:SkipBuildUI=true -p:SkipModPostProcess=true -p:FloatMode=Float64"
+
+[tasks."test:cs:float64:check"]
+description = "Checks that no widened assembly left the float64 tests' output (`test:cs:float64` runs it after the tests): none in the repository outside it, the game's folder or the Mods folder."
+raw = true
+run = "bun scripts/check-float64-output.ts"
 
 [tasks."test:ui"]
 description = "Runs the UI tests with Bun, against the real game UI bundle (see bunfig.toml)."

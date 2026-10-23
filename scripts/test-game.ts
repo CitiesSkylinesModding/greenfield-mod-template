@@ -12,6 +12,7 @@
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
+import { requireEnvironment } from './environment';
 import {
   bootSeconds,
   gameLeftRunning,
@@ -20,7 +21,6 @@ import {
   launchGame,
   loadSeconds,
   readLog,
-  requireEnvironment,
   secondsSince,
   stopGame,
   userDataPath,
