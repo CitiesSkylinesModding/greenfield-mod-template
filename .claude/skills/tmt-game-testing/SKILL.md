@@ -55,7 +55,7 @@ Copy the shape of [`EntityCounterScenario`](../../../ToveruxModTemplate/Scenario
 - **Start every other load from the game loop**, as `StartNewCity` does: `await this.WaitFrames(2)` before `GameManager.instance.Load`. A load started from the scenario's caller, the unity eval for one, holds the main thread the load needs, and the game must be killed.
 - Put back in `OnCleanup` whatever the scenario changed that outlives it (a setting, a saved value), then return `base.OnCleanup()`, which returns to the main menu.
 - Report each check with `this.Check(<passed>, <what was read>)`, which logs a `[PASSED]` or `[FAILED]` line, and end each test on `this.Finish()`, which fails it when one of its checks failed: a run reports every check and not only the first.
-- Keep a check's expected values in the mod's code, beside the logic, when an off-engine test can check them too: NetworkTools keeps one table of expected tunnel mouths that its off-engine tests and its scenario both read ([`ProvingGround.cs`](https://github.com/lucarager/CS2-NetworkTools/blob/main/NetworkTools.Mod/Tests/Utils/ProvingGround.cs), [`ProvingGroundTests.cs`](https://github.com/lucarager/CS2-NetworkTools/blob/main/NetworkTools.Tests/Tunnel/ProvingGroundTests.cs)).
+- Keep a check's expected values in the mod's code, beside the logic, when an off-engine test can check them too: one table that the off-engine tests and the scenario both read.
 
 ## The category
 
