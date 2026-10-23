@@ -80,6 +80,8 @@ public sealed class Mod : IMod {
 
       // Initialize subsystems.
       updateSystem.UpdateAt<CommonUISystem>(SystemUpdatePhase.UIUpdate);
+      updateSystem.UpdateAt<EntityCounterSystem>(SystemUpdatePhase.ModificationEnd);
+      updateSystem.UpdateAt<EntityCounterUISystem>(SystemUpdatePhase.UIUpdate);
 
       Mod.Log.Verbose($"{nameof(Mod)}: {nameof(this.OnLoad)} complete.");
     }

@@ -1,5 +1,7 @@
+using System;
 using Colossal.IO.AssetDatabase;
 using Colossal.UI.Binding;
+using Game.Input;
 using Game.Modding;
 using Game.Settings;
 using JetBrains.Annotations;
@@ -8,9 +10,34 @@ using ToveruxModTemplate.Utils;
 namespace ToveruxModTemplate;
 
 [FileLocation($"ModsSettings/{nameof(ToveruxModTemplate)}/{nameof(ToveruxModTemplate)}")]
-[SettingsUIShowGroupName(Settings.GroupAdvanced)]
+[SettingsUIGroupOrder(Settings.GroupEntityCounter, Settings.GroupAdvanced)]
+[SettingsUIShowGroupName(Settings.GroupEntityCounter, Settings.GroupAdvanced)]
+[SettingsUIKeyboardAction(
+  nameof(Settings.KeyBindingToggleEntityCounter),
+  Usages.kDefaultUsage,
+  Usages.kToolUsage
+)]
 public sealed class Settings : ModSetting, IJsonWritable {
+  private const string GroupEntityCounter = "EntityCounter";
+
   private const string GroupAdvanced = "Advanced";
+
+  /// <summary>
+  /// What the entity counter panel counts.
+  /// </summary>
+  [SettingsUISection(Settings.GroupEntityCounter)]
+  public EntityKind CountedEntity { get; set; }
+
+  /// <summary>
+  /// Keyboard shortcut opening and closing the entity counter panel.
+  /// </summary>
+  [SettingsUISection(Settings.GroupEntityCounter)]
+  [SettingsUIKeyboardBinding(
+    BindingKeyboard.K,
+    nameof(Settings.KeyBindingToggleEntityCounter),
+    ctrl: true
+  )]
+  public ProxyBinding KeyBindingToggleEntityCounter { get; set; }
 
   [SettingsUIButton]
   [SettingsUIConfirmation]
@@ -20,6 +47,9 @@ public sealed class Settings : ModSetting, IJsonWritable {
     // ReSharper disable once ValueParameterNotUsed
     set {
       this.SetDefaults();
+      // SetDefaults leaves key bindings alone: only this restores them to their attribute defaults
+      // (decompile, ModSetting.ResetKeyBindings).
+      this.ResetKeyBindings();
       this.ApplyAndSave();
     }
   }
@@ -34,6 +64,7 @@ public sealed class Settings : ModSetting, IJsonWritable {
   /// <see cref="ResetSettings"/>.
   /// </summary>
   public override void SetDefaults() {
+    this.CountedEntity = EntityKind.Buildings;
   }
 
   /// <summary>
@@ -51,6 +82,26 @@ public sealed class Settings : ModSetting, IJsonWritable {
   /// </summary>
   void IJsonWritable.Write(IJsonWriter writer) {
     writer.TypeBegin(this.GetType().FullName);
+
+    writer.PropertyName("countedEntity");
+    writer.Write(
+      this.CountedEntity switch {
+        EntityKind.Buildings => "buildings",
+        EntityKind.Citizens => "citizens",
+        EntityKind.Vehicles => "vehicles",
+        _ => throw new InvalidOperationException($"Unknown entity kind {this.CountedEntity}.")
+      }
+    );
+
     writer.TypeEnd();
+  }
+
+  /// <summary>
+  /// The entities the entity counter counts, by the component that identifies them.
+  /// </summary>
+  public enum EntityKind {
+    Buildings,
+    Citizens,
+    Vehicles
   }
 }
