@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ToveruxModTemplate/ToveruxModTemplate.csproj" />
+  <Project Path="ToveruxModTemplate.Tests/ToveruxModTemplate.Tests.csproj" />
+</Solution>

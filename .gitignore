@@ -1,0 +1,25 @@
+# Machine-specific settings and state
+/.idea/OxcSettings.xml
+/.idea/OxfmtSettings.xml
+/.idea/**/workspace.xml
+/*.DotSettings.user
+
+# UI mod
+/node_modules
+
+# Generated CSS module type definitions (see `mise build:css-types`)
+*.module.scss.d.ts
+
+# Build artifacts
+# The Unity project folder the toolchain creates beside the csproj, and no deeper Library folder.
+/*/Library/
+bin/
+obj/
+
+# Agent working material (specs and tickets in flight, see `docs/agents/cantrips-loop.md`)
+/.scratch/
+
+# Local machine config and secrets (ex. the CROWDIN_PERSONAL_TOKEN `mise l10n:push` needs)
+*.local.toml
+.env
+.env.*

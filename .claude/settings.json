@@ -1,0 +1,16 @@
+{
+  "enabledPlugins": {
+    "cs2-modding@csmodding": true,
+    "coherent-gameface@csmodding": true,
+    "unity-devtools@csmodding": true
+  },
+  "extraKnownMarketplaces": {
+    "csmodding": {
+      "source": {
+        "source": "github",
+        "repo": "CitiesSkylinesModding/agents-plugins"
+      },
+      "autoUpdate": true
+    }
+  }
+}

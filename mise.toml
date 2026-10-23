@@ -1,0 +1,168 @@
+# https://mise.jdx.dev -- Manages the languages, env vars, and tasks per project, reproducibly.
+
+# Every task body is a single command or a bun script, with no POSIX shell syntax (line
+# continuations, pipes, variables): mise runs inline tasks through `cmd /c` on Windows.
+
+[tools]
+bun = "1.4.4"
+dotnet = "10.0.402"
+
+# DEVELOPMENT TASKS
+# =================
+
+[tasks."dev:deps-upgrade"]
+description = "Upgrades mise-en-place, proposes upgrades for tools managed by mise, npm dependencies upgrades, and skills update."
+run = [
+  "mise self-update",
+  "mise up --interactive --bump",
+  # using `mise exec bun` makes sure bun is found if a bun upgrade was just made
+  "mise exec bun -- bun update --interactive",
+  # make sure transitive dependencies are updated & deduplicated
+  "mise exec bun -- bun update"
+]
+
+[tasks."dev"]
+description = "Watches and rebuilds the UI: the bundle and the CSS module type definitions."
+# Grouping task with no `run`: mise runs independent `depends` in parallel, so both watchers run
+# side by side.
+depends = ["dev:bundle", "dev:css-types"]
+
+[tasks."dev:bundle"]
+description = "Watches and rebuilds the UI bundle."
+run = "bun ToveruxModTemplate/UI/build.ts --watch"
+
+[tasks."dev:css-types"]
+description = "Watches and regenerates the CSS module type definitions."
+# `build:css-types` does the full initial generation once; `--ignoreInitial` then makes this
+# watcher skip its redundant startup pass and only react to later file additions/changes.
+depends = ["build:css-types"]
+run = 'bun --bun typed-scss-modules "ToveruxModTemplate/UI/src/**/*.module.scss" --exportType named --nameFormat camel --ignoreInitial --watch'
+
+# CHECK TASKS
+# ===========
+
+# check:* are READ-ONLY (idempotent, CI-safe): they verify and write nothing of the source tree.
+# The in-place auto-fixers live under fix:* (see FIX TASKS).
+# Run `mise fix` locally to apply, `mise check` to verify.
+# The `build:css-types` dependency is the one exception, and not a source write: it regenerates the
+# gitignored *.module.scss.d.ts that tsc and oxlint need to resolve the `styles.*` imports.
+
+[tasks."check"]
+description = "Verify read-only: typescript, oxlint, and oxfmt. Writes nothing, run `mise fix` to auto-fix."
+run = ["mise check:tsc", "mise check:oxlint", "mise check:oxfmt"]
+
+[tasks."check:tsc"]
+description = "Type-checks the UI with tsc (read-only)."
+depends = "build:css-types"
+raw = true
+run = "bun --bun tsc --noEmit"
+
+[tasks."check:oxfmt"]
+description = "Verifies formatting with oxfmt (read-only, `mise fix:oxfmt` writes)."
+raw = true
+run = "bun --bun oxfmt --check"
+
+[tasks."check:oxlint"]
+description = "Lints with oxlint, warnings denied (read-only, `mise fix:oxlint` auto-fixes)."
+depends = "build:css-types"
+raw = true
+run = "bun --bun oxlint --deny-warnings"
+
+# No check:cs: jb cleanupcode (the C# formatter, see fix:cs) has no read-only/dry-run mode, so there
+# is no read-only C# verify. Run `mise fix:cs` and commit; Rider formats live with the same engine,
+# the same ToveruxModTemplate.slnx.DotSettings profile, and the same root .editorconfig.
+# The build itself gates the :warning IDE rules (EnforceCodeStyleInBuild, see
+# Directory.Build.props).
+
+# CHECK TASKS (AGENTS)
+# ====================
+
+[tasks."check:agents"]
+description = "Verify read-only (typescript, oxlint, oxfmt), output optimized for AI agents. Writes nothing."
+run = ["mise check:agents:tsc", "mise check:agents:oxlint", "mise check:oxfmt"]
+
+[tasks."check:agents:tsc"]
+description = "Type-checks the UI with tsc, output optimized for AI agents."
+depends = "build:css-types"
+raw = true
+run = "bun --bun tsc --noEmit --pretty false"
+
+[tasks."check:agents:oxlint"]
+description = "Lints with oxlint (read-only, warnings denied), output optimized for AI agents."
+depends = "build:css-types"
+run = "bun --bun oxlint --deny-warnings --format agent"
+
+# FIX TASKS
+# =========
+
+# fix:* WRITE in place (the counterparts to the read-only check:*). For local dev.
+
+[tasks."fix"]
+description = "Auto-fix in place: oxlint --fix, oxfmt, then the C# cleanup. `mise check` is the read-only counterpart, minus the C# part it cannot verify."
+# Sequential, lint then format, so formatting settles after lint rewrites.
+run = ["mise fix:oxlint", "mise fix:oxfmt", "mise fix:cs"]
+
+[tasks."fix:oxlint"]
+description = "Auto-fixes lint issues with oxlint (writes, `mise check:oxlint` only reports)."
+depends = "build:css-types"
+raw = true
+run = "bun --bun oxlint --fix"
+
+[tasks."fix:oxfmt"]
+description = "Formats code in place with oxfmt (writes, `mise check:oxfmt` only verifies)."
+raw = true
+run = "bun --bun oxfmt"
+
+[tasks."fix:cs"]
+description = "Formats the C# code in place with jb (ReSharper) cleanupcode."
+raw = true
+# jb cleanupcode (same engine as Rider) with the custom "AutoCleanup" profile: applies the
+# resharper_* wrapping dotnet format cannot, and the minor code-style fixes that keep the :warning
+# IDE rules satisfied.
+# Skips the UI build and the mod post-processor (cleanup needs the C# semantics, not the deployed
+# mod), and turns the build's style gate off: jb refuses to run on a project whose design-time build
+# fails, and the violations are what it fixes.
+# Excludes the generated build output, and the toolchain's Mod.props/Mod.targets the csproj links,
+# which jb would otherwise rewrite in the toolchain folder.
+# `jb` is a local tool pinned in .config/dotnet-tools.json, so the restore has to precede it: it is
+# idempotent and a no-op once the tool is installed.
+run = [
+  "dotnet tool restore",
+  'dotnet jb cleanupcode ToveruxModTemplate.slnx --profile="AutoCleanup" --settings="ToveruxModTemplate.slnx.DotSettings" --properties:SkipBuildUI=true --properties:SkipModPostProcess=true --properties:EnforceCodeStyleInBuild=false --exclude="**/obj/**;**/bin/**;**/Mod.props;**/Mod.targets"'
+]
+
+# SETUP TASKS
+# ===========
+
+[tasks."setup:linux"]
+description = "Sets up the CS2 modding toolchain on Linux, where the in-game installer cannot run. Idempotent, rerun it after a game update. Requires the game to be closed."
+raw = true
+run = "bash scripts/setup-linux-toolchain.sh"
+
+# BUILD TASKS
+# ===========
+
+[tasks."build"]
+description = "Builds and deploys the whole mod: the C# assembly, the post-processor, and the UI (the csproj calls `build:ui` itself). Requires the game to be closed, which holds the deployed assembly open."
+raw = true
+run = "dotnet build ToveruxModTemplate.slnx"
+
+[tasks."build:ui"]
+description = "Builds the UI alone: the bundle and the (gitignored) CSS module type definitions. Deploys straight to the game's Mods folder, so it is the task to run while iterating with the game open."
+depends = ["build:css-types", "build:bundle"]
+
+[tasks."build:bundle"]
+description = "Builds the UI bundle with Bun (`ToveruxModTemplate/UI/build.ts`). Does not type-check: `mise check` does."
+run = "bun ToveruxModTemplate/UI/build.ts"
+
+[tasks."build:css-types"]
+description = "Generates the gitignored *.module.scss.d.ts so tsc catches stale styles.* references."
+run = 'bun --bun typed-scss-modules "ToveruxModTemplate/UI/src/**/*.module.scss" --exportType named --nameFormat camel'
+
+# PUBLISH TASKS
+# =============
+
+[tasks."publish"]
+description = "Builds the mod in Release and publishes it as a new version on Paradox Mods."
+raw = true
+run = "dotnet publish ToveruxModTemplate/ToveruxModTemplate.csproj -p:PublishProfile=PublishNewVersion"
