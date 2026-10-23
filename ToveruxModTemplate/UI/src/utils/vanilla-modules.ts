@@ -106,8 +106,8 @@ export function isRenderable(value: unknown): boolean {
 }
 
 /**
- * Transforms a space-separated list of class names into a query selector, i.e.
- * "class1 class2 class3" -> ".class1.class2.class3".
+ * Transforms a space-separated list of class names into a query selector, i.e. "class1 class2
+ * class3" -> ".class1.class2.class3".
  */
 export function selector(classNames: string): string {
   return `.${classNames.replaceAll(' ', '.')}`;

@@ -14,12 +14,12 @@ import path from 'node:path';
 import process from 'node:process';
 import { requireEnvironment } from './environment';
 import {
-  bootSeconds,
+  BOOT_SECONDS,
   gameLeftRunning,
   isGameProcessRunning,
   isGameOrReaperRunning,
   launchGame,
-  loadSeconds,
+  LOAD_SECONDS,
   readLog,
   secondsSince,
   stopGame,
@@ -35,21 +35,25 @@ import {
   type ScenarioResult
 } from './scenario-log';
 
-const modName = 'ToveruxModTemplate';
+const MOD_NAME = 'ToveruxModTemplate';
 
 /**
  * `ScenarioRegistry.ScenarioCategory` (1 << 20), in
  * ToveruxModTemplate/Scenarios/ScenarioRegistry.cs.
  */
-const scenarioCategory = 1_048_576;
+const SCENARIO_CATEGORY = 1_048_576;
 
 // A scenario that loads a city logs nothing for as long as the load takes.
-const limits: RunLimits = { bootSeconds, stallSeconds: loadSeconds + 60, runSeconds: 1800 };
+const limits: RunLimits = {
+  bootSeconds: BOOT_SECONDS,
+  stallSeconds: LOAD_SECONDS + 60,
+  runSeconds: 1800
+};
 
 const logsPath = path.join(userDataPath, 'Logs');
 const automationLogPath = path.join(logsPath, 'Automation.log');
 const scenariosLogPath = path.join(logsPath, 'TestScenarios.log');
-const modLogPath = path.join(logsPath, `${modName}.log`);
+const modLogPath = path.join(logsPath, `${MOD_NAME}.log`);
 
 /**
  * How a run ends when the script is asked to stop: Ctrl+C, or a SIGTERM from whatever runs it.
@@ -59,9 +63,9 @@ type Verdict = RunVerdict | 'interrupted';
 // The watch ends at its next check, and the game is stopped as at the end of any run.
 let interrupted = false;
 
-const interrupt = (): void => {
+function interrupt(): void {
   interrupted = true;
-};
+}
 
 process.on('SIGINT', interrupt);
 process.on('SIGTERM', interrupt);
@@ -77,7 +81,7 @@ try {
 async function testGame(args: readonly string[]): Promise<boolean> {
   // Every other argument is a game option: mise drops a `--` that would have parted them.
   const keepOpen = args.includes('--keep-open');
-  const gameOptions = args.filter(arg => arg !== '--keep-open');
+  const gameOptions = args.filter(arg => arg != '--keep-open');
 
   if (await isGameOrReaperRunning()) {
     throw new Error(
@@ -91,7 +95,7 @@ async function testGame(args: readonly string[]): Promise<boolean> {
   const launchTime = new Date();
 
   // A launch that fails stops what it started itself.
-  await launchGame([`--categoryFilter=${scenarioCategory}`, ...gameOptions]);
+  await launchGame([`--categoryFilter=${SCENARIO_CATEGORY}`, ...gameOptions]);
 
   let verdict: Verdict | undefined;
 
@@ -117,14 +121,14 @@ async function testGame(args: readonly string[]): Promise<boolean> {
 }
 
 /**
- * Checks that the deployed mod is a Debug build, the one carrying the scenarios, and warns when
- * the sources changed after it was built.
+ * Checks that the deployed mod is a Debug build, the one carrying the scenarios, and warns when the
+ * sources changed after it was built.
  */
 async function checkDeployedBuild(): Promise<void> {
   const assemblyPath = path.join(
     requireEnvironment('CSII_LOCALMODSPATH'),
-    modName,
-    `${modName}.dll`
+    MOD_NAME,
+    `${MOD_NAME}.dll`
   );
 
   const assembly = Bun.file(assemblyPath);
@@ -143,7 +147,7 @@ async function checkDeployedBuild(): Promise<void> {
     );
   }
 
-  const projectPath = path.join(import.meta.dir, '..', modName);
+  const projectPath = path.join(import.meta.dir, '..', MOD_NAME);
   // One glob per pattern: Bun's glob matches nothing when a braced alternative holds a `/`.
   const sources = await Promise.all(
     ['**/*.cs', '*.csproj', 'Locales/*.json'].map(pattern =>
@@ -201,10 +205,10 @@ async function watchRun(launchTime: Date): Promise<Verdict> {
       limits
     );
 
-    return verdict !== 'running';
+    return verdict != 'running';
   }, limits.runSeconds * 2);
 
-  return verdict === 'running' ? 'timed out' : verdict;
+  return verdict == 'running' ? 'timed out' : verdict;
 }
 
 /**
@@ -218,21 +222,21 @@ async function report(verdict: Verdict, launchTime: Date): Promise<boolean> {
     printScenario(scenario);
   }
 
-  if (verdict !== 'finished') {
+  if (verdict != 'finished') {
     failures.push(`the run ended: ${verdict}`);
   }
 
-  if (verdict === 'died') {
+  if (verdict == 'died') {
     console.log(
       `\nCrash dumps: ${path.join(userDataPath, '.cache', 'backtrace', 'crashpad', 'reports')}`
     );
   }
 
-  if (verdict === 'finished' && scenarios.length === 0) {
+  if (verdict == 'finished' && scenarios.length == 0) {
     failures.push(
-      'no scenario ran: none may be written yet; otherwise the category in scripts/test-game.ts ' +
+      `no scenario ran: none may be written yet; otherwise the category in scripts/test-game.ts ` +
         `must be ScenarioRegistry.cs one, and ${modLogPath} must show the registry adding the ` +
-        'scenarios'
+        `scenarios`
     );
   }
 
@@ -259,19 +263,20 @@ async function report(verdict: Verdict, launchTime: Date): Promise<boolean> {
   }
 
   console.log(
-    failures.length === 0
+    failures.length == 0
       ? `\nPASSED: ${scenarios.length} scenarios.`
       : `\nFAILED: ${failures.join('; ')}.`
   );
 
-  return failures.length === 0;
+  return failures.length == 0;
 }
 
 /**
- * The errors of the mod since the launch, by log: every error in its own log, and the errors in
- * the game's other logs that name it. The game logs an exception a system throws in SceneFlow.log,
- * where only the stack trace names the mod, and a scenario dismisses the errors logged before it
- * (ModTestScenario), so one thrown at the main menu fails no scenario.
+ * The errors of the mod since the launch, by log: every error in its own log, and the errors in the
+ * game's other logs that name it.
+ * The game logs an exception a system throws in SceneFlow.log, where only the stack trace names the
+ * mod, and a scenario dismisses the errors logged before it (ModTestScenario), so one thrown at the
+ * main menu fails no scenario.
  * TestScenarios.log is left out: each scenario is judged on its own errors.
  */
 async function readModErrors(launchTime: Date): Promise<Map<string, LogEntry[]>> {
@@ -280,12 +285,12 @@ async function readModErrors(launchTime: Date): Promise<Map<string, LogEntry[]>>
   const logPaths = logNames
     .filter(name => name.endsWith('.log'))
     .map(name => path.join(logsPath, name))
-    .filter(logPath => logPath !== scenariosLogPath);
+    .filter(logPath => logPath != scenariosLogPath);
 
   const errorsByLog = await Promise.all(
     logPaths.map(async logPath => {
       const errors = errorEntries(await readLog(logPath, launchTime)).filter(
-        entry => logPath === modLogPath || entry.message.includes(`${modName}.`)
+        entry => logPath == modLogPath || entry.message.includes(`${MOD_NAME}.`)
       );
 
       return [logPath, errors] as const;
@@ -311,7 +316,7 @@ function printScenario(scenario: ScenarioResult): void {
 }
 
 function printEntry(entry: LogEntry): void {
-  const level = entry.level === 'INFO' ? '' : `[${entry.level}] `;
+  const level = entry.level == 'INFO' ? '' : `[${entry.level}] `;
 
   console.log(`  ${level}${entry.message.replaceAll('\n', '\n    ')}`);
 }

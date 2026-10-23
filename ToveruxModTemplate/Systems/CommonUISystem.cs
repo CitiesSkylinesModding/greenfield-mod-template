@@ -23,6 +23,8 @@ internal sealed partial class CommonUISystem : UISystemBase {
   private readonly LocalizationManager localizationManager =
     GameManager.instance.localizationManager;
 
+  // Both bindings are created in OnCreate, which the game runs before any other member: hence
+  // mutable, and null! until then.
   private GetterValueBinding<string> localeBinding = null!;
 
   private GetterValueBinding<Settings> settingsBinding = null!;
@@ -41,12 +43,12 @@ internal sealed partial class CommonUISystem : UISystemBase {
         () => this.localizationManager.activeLocaleId
       );
 
-      // The settings object is updated in place, so the default comparer would see it unchanged
-      // and skip every update.
+      // The settings object is updated in place, so the default comparer would see it unchanged and
+      // skip every update.
       this.settingsBinding = new GetterValueBinding<Settings>(
         CommonUISystem.BindingGroup,
         "settings",
-        () => Mod.Settings,
+        static () => Mod.Settings,
         comparer: new AlwaysFalseEqualityComparer<Settings>()
       );
 
@@ -100,7 +102,7 @@ internal sealed partial class CommonUISystem : UISystemBase {
   private static void LogJavaScriptError(bool isFatal, string error) {
     ErrorDialogManagerAccessor.Instance?.ShowError(
       new ErrorDialog {
-        localizedMessage = ModLog.PlayerMessage(isFatal, key => key.Translate()),
+        localizedMessage = ModLog.PlayerMessage(isFatal, static key => key.Translate()),
         errorDetails = error
       }
     );
@@ -108,17 +110,13 @@ internal sealed partial class CommonUISystem : UISystemBase {
     Mod.Log.ErrorSilent(error);
   }
 
-  private void OnActiveDictionaryChanged() {
-    this.localeBinding.Update();
-  }
+  private void OnActiveDictionaryChanged() => this.localeBinding.Update();
 
-  private void OnSettingsApplied(Setting setting) {
-    this.settingsBinding.Update();
-  }
+  private void OnSettingsApplied(Setting setting) => this.settingsBinding.Update();
 
   /// <summary>
-  /// Opens the mod settings page at the specified tab,
-  /// e.g. <c>General</c>, the tab of a one-argument <see cref="SettingsUISectionAttribute"/>.
+  /// Opens the mod settings page at the specified tab, e.g. <c>General</c>, the tab of a
+  /// one-argument <see cref="SettingsUISectionAttribute"/>.
   /// </summary>
   private void OpenModSettings(string tab) {
     var optionsUISystem = this.World.GetOrCreateSystemManaged<OptionsUISystem>();

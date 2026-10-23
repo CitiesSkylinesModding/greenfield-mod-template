@@ -22,6 +22,10 @@ public sealed class Settings : ModSetting, IJsonWritable {
 
   private const string GroupAdvanced = "Advanced";
 
+  public Settings(IMod mod) : base(mod) {
+    this.SetDefaults();
+  }
+
   /// <summary>
   /// What the entity counter panel counts.
   /// </summary>
@@ -54,18 +58,12 @@ public sealed class Settings : ModSetting, IJsonWritable {
     }
   }
 
-  public Settings(IMod mod) : base(mod) {
-    this.SetDefaults();
-  }
-
   /// <summary>
   /// Applies default values to every setting.
   /// Do NOT initialize the properties inline instead, as this method is also the reset path of
   /// <see cref="ResetSettings"/>.
   /// </summary>
-  public override void SetDefaults() {
-    this.CountedEntity = EntityKind.Buildings;
-  }
+  public override void SetDefaults() => this.CountedEntity = EntityKind.Buildings;
 
   /// <summary>
   /// Restores the default of every string setting that came back null from the settings file.
@@ -101,7 +99,9 @@ public sealed class Settings : ModSetting, IJsonWritable {
   /// </summary>
   public enum EntityKind {
     Buildings,
+
     Citizens,
+
     Vehicles
   }
 }

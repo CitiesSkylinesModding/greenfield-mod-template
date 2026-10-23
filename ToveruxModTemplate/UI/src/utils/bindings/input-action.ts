@@ -20,8 +20,8 @@ export function bindInputAction(
   group: string,
   name: string
 ): {
-  useInputBinding: () => ProxyBinding;
-  useInputPhase: () => InputActionPhase;
+  readonly useInputBinding: () => ProxyBinding;
+  readonly useInputPhase: () => InputActionPhase;
 } {
   const binding$ = lazyBindValue<ProxyBinding>(group, `${name}.binding`, {
     binding: {

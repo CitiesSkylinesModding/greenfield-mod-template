@@ -55,8 +55,8 @@ async function checkFloat64Output(): Promise<boolean> {
     return false;
   }
 
-  if (widened.length === 0) {
-    console.error('No widened assembly found to check: the float64 pass has not built yet.');
+  if (widened.length == 0) {
+    console.error(`No widened assembly found to check: the float64 pass has not built yet.`);
 
     return false;
   }
@@ -67,14 +67,15 @@ async function checkFloat64Output(): Promise<boolean> {
 }
 
 /**
- * The assemblies under `root` that the float widener rewrote. Skips `node_modules` and the folders
- * whose name starts with a dot (`.git`, `.scratch`), where no build writes.
+ * The assemblies under `root` that the float widener rewrote.
+ * Skips `node_modules` and the folders whose name starts with a dot (`.git`, `.scratch`), where no
+ * build writes.
  */
 export async function findWidenedAssemblies(root: string): Promise<string[]> {
   const widened: string[] = [];
   const entries = await readdir(root, { withFileTypes: true }).catch((error: unknown) => {
     // The Mods folder only exists once a mod was deployed.
-    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+    if (error instanceof Error && 'code' in error && error.code == 'ENOENT') {
       return [];
     }
 
@@ -85,7 +86,7 @@ export async function findWidenedAssemblies(root: string): Promise<string[]> {
     const entryPath = path.join(root, entry.name);
 
     if (entry.isDirectory()) {
-      if (entry.name !== 'node_modules' && !entry.name.startsWith('.')) {
+      if (entry.name != 'node_modules' && !entry.name.startsWith('.')) {
         widened.push(...(await findWidenedAssemblies(entryPath)));
       }
     } else if (assemblyExtensions.has(path.extname(entry.name))) {
@@ -108,9 +109,9 @@ export function isFloat64Output(repository: string, file: string): boolean {
   const [project, folder, pass] = path.relative(repository, file).split(path.sep);
 
   return (
-    project !== undefined &&
+    project != null &&
     project.endsWith('.Tests') &&
-    (folder === 'bin' || folder === 'obj') &&
-    pass === 'float64'
+    (folder == 'bin' || folder == 'obj') &&
+    pass == 'float64'
   );
 }

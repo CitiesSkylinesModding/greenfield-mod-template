@@ -16,7 +16,7 @@ import * as bindings from './bindings';
 export function snappyOnSelect(
   handler: () => void,
   sound?: `${UISound}`
-): { onMouseDown: () => void } {
+): { readonly onMouseDown: () => void } {
   return {
     onMouseDown(): void {
       handler();

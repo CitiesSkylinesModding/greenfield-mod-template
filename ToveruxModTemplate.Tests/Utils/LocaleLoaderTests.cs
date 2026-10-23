@@ -90,9 +90,8 @@ public sealed class LocaleLoaderTests {
   }
 
   [Fact]
-  public void ReadDictionary_ReturnsNullForALocaleTheModDoesNotShip() {
+  public void ReadDictionary_ReturnsNullForALocaleTheModDoesNotShip() =>
     Assert.Null(LocaleLoader.ReadDictionary("xx-XX"));
-  }
 
   /// <summary>
   /// Every embedded locale file parses as a flat JSON object of strings, and the source locale
@@ -103,13 +102,18 @@ public sealed class LocaleLoaderTests {
     var localeIds = typeof(LocaleLoader)
       .Assembly
       .GetManifestResourceNames()
-      .Where(name => name.StartsWith(LocaleLoader.ResourcePrefix) && name.EndsWith(".json"))
-      .Select(name => name[LocaleLoader.ResourcePrefix.Length..^".json".Length])
+      .Where(static name => name.StartsWith(LocaleLoader.ResourcePrefix) && name.EndsWith(".json"))
+      .Select(static name => name[LocaleLoader.ResourcePrefix.Length..^".json".Length])
       .ToList();
 
     Assert.Contains("en-US", localeIds);
 
-    Assert.All(localeIds, localeId => Assert.NotEmpty(LocaleLoader.ReadDictionary(localeId)!));
+    // ReadDictionary returns null only for a locale the assembly does not embed, and each of these
+    // ids comes from an embedded resource, en-US included.
+    Assert.All(
+      localeIds,
+      static localeId => Assert.NotEmpty(LocaleLoader.ReadDictionary(localeId)!)
+    );
 
     Assert.Contains(ModLog.BaseErrorKey, LocaleLoader.ReadDictionary("en-US")!.Keys);
   }
@@ -117,6 +121,6 @@ public sealed class LocaleLoaderTests {
   private static Dictionary<string, string> Postprocess(Dictionary<string, string> dictionary) =>
     LocaleLoader.PostprocessLocaleDictionary(
       dictionary,
-      key => LocaleLoaderTests.GameDictionary.GetValueOrDefault(key)
+      static key => LocaleLoaderTests.GameDictionary.GetValueOrDefault(key)
     );
 }

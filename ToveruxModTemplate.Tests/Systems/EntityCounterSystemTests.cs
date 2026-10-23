@@ -15,8 +15,8 @@ public sealed class EntityCounterSystemTests {
 
   [Fact]
   public void CountChunkEntities_WithEnabledMask_CountsTheEnabledEntitiesOfBothHalves() {
-    // Entities 0, 2 and 63 in the first half, 64 and 127 in the second.
-    var mask = new v128(0b101UL | 1UL << 63, 1UL | 1UL << 63);
+    // Entities 0, 2, and 63 in the first half, 64 and 127 in the second.
+    var mask = new v128(0b101UL | (1UL << 63), 1UL | (1UL << 63));
 
     Assert.Equal(5, EntityCounterSystem.CountChunkEntities(128, true, mask));
   }

@@ -12,8 +12,8 @@ namespace ToveruxModTemplate.Scenarios;
 /// <summary>
 /// Base class of the mod's in-game test scenarios.
 /// A scenario fails on any error logged while it runs, by any logger, as the game's runner rules.
-/// The runner also aborts a scenario, before it runs a single test and while still reporting it
-/// a success, when an error was logged since the previous one ended: at boot, any of the game's or
+/// The runner also aborts a scenario, before it runs a single test and while still reporting it a
+/// success, when an error was logged since the previous one ended: at boot, any of the game's or
 /// another mod's.
 /// The runner constructs a scenario right before it runs it, so the constructor dismisses those
 /// earlier errors, and logs how many it dismissed.
@@ -21,6 +21,7 @@ namespace ToveruxModTemplate.Scenarios;
 /// log that names it.
 /// </summary>
 internal abstract class ModTestScenario : TestScenario {
+  // Counted by Check, reset before each test by ResetChecks.
   private int failedChecks;
 
   protected ModTestScenario() {
@@ -38,20 +39,20 @@ internal abstract class ModTestScenario : TestScenario {
   /// Returns to the main menu after a scenario that loaded a city.
   /// </summary>
   protected override async Task OnCleanup() {
-    if (GameManager.instance.gameMode == GameMode.Game) {
+    if (GameManager.instance.gameMode is GameMode.Game) {
       await GameManager.instance.MainMenu();
     }
   }
 
   /// <summary>
-  /// Starts a new city on a map, with the options a new game takes from the new game screen, as
-  /// the game's own scenarios set them.
+  /// Starts a new city on a map, with the options a new game takes from the new game screen, as the
+  /// game's own scenarios set them.
   /// Settings a new city reads at creation, the starting year of the time system for one, are set
   /// before it.
   /// </summary>
   protected async Task StartNewCity(Hash128 map, string cityName) {
-    // The load must start from the game's own loop: a load started from the caller of the
-    // scenario, the unity eval for one, holds the main thread the load needs.
+    // The load must start from the game's own loop: a load started from the caller of the scenario,
+    // the unity eval for one, holds the main thread the load needs.
     await this.WaitFrames(2);
 
     var cityConfiguration = this.World.GetExistingSystemManaged<CityConfigurationSystem>();
@@ -73,9 +74,7 @@ internal abstract class ModTestScenario : TestScenario {
   /// </summary>
   [TestPrepare]
   [UsedImplicitly]
-  protected void ResetChecks() {
-    this.failedChecks = 0;
-  }
+  protected void ResetChecks() => this.failedChecks = 0;
 
   /// <summary>
   /// Logs a check as passed or failed, so that a test reports every check and not only the first
@@ -92,7 +91,7 @@ internal abstract class ModTestScenario : TestScenario {
   /// The runner awaits a test returning a task, and reports the exception the task holds.
   /// </summary>
   protected Task Finish() =>
-    this.failedChecks == 0
+    this.failedChecks is 0
       ? Task.CompletedTask
       : Task.FromException(
         new TestScenarioException($"{this.failedChecks} checks failed, see the lines above.")

@@ -11,7 +11,9 @@ import { type Dispatch, type SetStateAction, useSyncExternalStore } from 'react'
  *     const [value, setValue] = useSingletonState();
  *   }
  */
-export function createSingletonHook<T>(initialValue: T) {
+export function createSingletonHook<T>(
+  initialValue: T
+): () => readonly [T, Dispatch<SetStateAction<T>>] {
   let sharedValue: T = initialValue;
 
   const listeners = new Set<() => void>();

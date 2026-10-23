@@ -28,7 +28,7 @@ internal static class ScenarioRegistry {
 
     var scenarioTypes = typeof(ScenarioRegistry).Assembly
       .GetTypes()
-      .Where(type => typeof(TestScenario).IsAssignableFrom(type) && !type.IsAbstract);
+      .Where(static type => typeof(TestScenario).IsAssignableFrom(type) && !type.IsAbstract);
 
     foreach (var type in scenarioTypes) {
       if (!type.TryGetAttribute(out TestDescriptorAttribute descriptor)) {

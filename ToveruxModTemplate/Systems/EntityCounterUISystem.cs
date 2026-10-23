@@ -15,6 +15,8 @@ namespace ToveruxModTemplate.Systems;
 internal sealed partial class EntityCounterUISystem : UISystemBase {
   private const string BindingGroup = "toveruxModTemplate.entityCounter";
 
+  // Set in OnCreate, which the game runs before any other member: hence mutable, and null! until
+  // then.
   private EntityCounterSystem entityCounterSystem = null!;
 
   public override GameMode gameMode => GameMode.Game;

@@ -15,7 +15,7 @@ public sealed class UnityNativeCallsTests {
     var array = new NativeArray<int>(64, allocator);
 
     try {
-      Assert.All(array, value => Assert.Equal(0, value));
+      Assert.All(array, static value => Assert.Equal(0, value));
 
       array[63] = 42;
 

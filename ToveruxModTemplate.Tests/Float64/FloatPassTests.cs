@@ -47,8 +47,9 @@ public sealed class FloatPassTests {
   /// <summary>
   /// The in-game check that the game's Mono computes floats as the float64 pass does, run
   /// off-engine: <c>math.dot</c> sums on the stack, in double precision, and <c>math.mul</c> sums
-  /// through <c>float3</c> fields, narrowed to float at each store. From the unity eval, the game
-  /// returns 1 and 0 (Unity 2022.3.71f1), as upstream Mono 6.14 does with <c>-O=-float32</c>.
+  /// through <c>float3</c> fields, narrowed to float at each store.
+  /// From the unity eval, the game returns 1 and 0 (Unity 2022.3.71f1), as upstream Mono 6.14 does
+  /// with <c>-O=-float32</c>.
   /// </summary>
   [Fact]
   public void GameMath_RunsInThePassPrecision() {
@@ -82,7 +83,8 @@ public sealed class FloatPassTests {
 
   /// <summary>
   /// A <c>volatile float</c> field is typed <c>float modreq(IsVolatile)</c>, which Mono loads as
-  /// any other float. Both operands are volatile: a widened one would widen the other.
+  /// any other float.
+  /// Both operands are volatile: a widened one would widen the other.
   /// </summary>
   [Fact]
   public void VolatileFields_RunInThePassPrecision() =>
@@ -97,12 +99,12 @@ public sealed class FloatPassTests {
   [Fact]
   public void Symbols_AreFoundInBothPasses() =>
     Assert.EndsWith(
-      nameof(FloatPassTests) + ".cs",
+      $"{nameof(FloatPassTests)}.cs",
       new StackTrace(true).GetFrame(0)?.GetFileName() ?? ""
     );
 
   /// <summary>
-  /// The test, mod and game assemblies are widened, UnityEngine.CoreModule included (before the
+  /// The test, mod, and game assemblies are widened, UnityEngine.CoreModule included (before the
   /// native-call shim's rewrite).
   /// </summary>
   [Theory]
@@ -120,14 +122,16 @@ public sealed class FloatPassTests {
 
   /// <summary>
   /// A bug of the kind only the game shows: a run's end read back from memory (narrowed to float)
-  /// compared with the same product computed again (a double under the game's Mono). The float64
-  /// pass finds the zero-length runs it leaves, the float32 pass does not.
+  /// compared with the same product computed again (a double under the game's Mono).
+  /// The float64 pass finds the zero-length runs it leaves, the float32 pass does not.
   /// </summary>
   [Fact]
   public void ReadBackComparisonBug_ShowsInTheFloat64PassOnly() =>
     Assert.Equal(
       FloatPassTests.IsFloat64Pass,
-      Enumerable.Range(1, 199).Any(last => FloatPassTests.LeavesZeroLengthRun(last, 0.7f, 0f))
+      Enumerable
+        .Range(1, 199)
+        .Any(static last => FloatPassTests.LeavesZeroLengthRun(last, 0.7f, 0f))
     );
 
   /// <summary>
@@ -137,7 +141,7 @@ public sealed class FloatPassTests {
   public void ReadBackComparisonFix_HoldsInBothPasses() =>
     Assert.DoesNotContain(
       Enumerable.Range(1, 199),
-      last => FloatPassTests.LeavesZeroLengthRun(last, 0.7f, 0.7f * 0.01f)
+      static last => FloatPassTests.LeavesZeroLengthRun(last, 0.7f, 0.7f * 0.01f)
     );
 
   [MethodImpl(MethodImplOptions.NoInlining)]

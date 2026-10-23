@@ -11,8 +11,8 @@ namespace ToveruxModTemplate.Tests.Logging;
 /// made under.
 /// </para>
 /// <para>
-/// <see cref="ILog"/> has a few hundred members, so <see cref="DispatchProxy"/> implements them
-/// all and routes each call to <see cref="Invoke"/>.
+/// <see cref="ILog"/> has a few hundred members, so <see cref="DispatchProxy"/> implements them all
+/// and routes each call to <see cref="Invoke"/>.
 /// Only <see cref="ILog.showsErrorsInUI"/> keeps state; every other call is recorded and returns
 /// the default of its return type.
 /// Public and unsealed, as <see cref="DispatchProxy"/> derives the proxy from it.
@@ -30,19 +30,20 @@ public class RecordingLog : DispatchProxy {
   }
 
   protected override object? Invoke(MethodInfo? targetMethod, object?[]? args) {
-    var method = targetMethod ?? throw new ArgumentNullException(nameof(targetMethod));
+    ArgumentNullException.ThrowIfNull(targetMethod);
 
-    switch (method.Name) {
+    switch (targetMethod.Name) {
       case $"get_{nameof(ILog.showsErrorsInUI)}": return this.ShowsErrorsInUI;
       case $"set_{nameof(ILog.showsErrorsInUI)}":
+        // A property setter is always called with its value, a bool.
         this.ShowsErrorsInUI = (bool) args![0]!;
 
         return null;
       default:
-        this.Calls.Add(new LogCall(method.Name, args ?? [], this.ShowsErrorsInUI));
+        this.Calls.Add(new LogCall(targetMethod.Name, args ?? [], this.ShowsErrorsInUI));
 
-        return method.ReturnType.IsValueType && method.ReturnType != typeof(void)
-          ? Activator.CreateInstance(method.ReturnType)
+        return targetMethod.ReturnType.IsValueType && targetMethod.ReturnType != typeof(void)
+          ? Activator.CreateInstance(targetMethod.ReturnType)
           : null;
     }
   }

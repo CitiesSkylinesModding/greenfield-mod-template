@@ -30,7 +30,7 @@ function logEntry(seconds: number, message: string): LogEntry {
 const limits: RunLimits = { bootSeconds: 600, stallSeconds: 240, runSeconds: 1800 };
 
 describe('readScenarios', () => {
-  test('passes a scenario the game reports a success, its tests run and nothing logged as an error', async () => {
+  test(`passes a scenario the game reports a success, its tests run and nothing logged as an error`, async () => {
     const [scenario, ...others] = await scenariosOf('passed');
 
     expect(others).toEqual([]);
@@ -39,7 +39,7 @@ describe('readScenarios', () => {
     expect(scenario?.entries.at(-1)?.message).toStartWith('---| FINISH TEST SCENARIO (Success');
   });
 
-  test('keeps the entries from the start line to the finish line', async () => {
+  test(`keeps the entries from the start line to the finish line`, async () => {
     const [scenario] = await scenariosOf('passed');
 
     expect(scenario?.entries[0]?.message).toStartWith('---| START TEST SCENARIO');
@@ -49,33 +49,33 @@ describe('readScenarios', () => {
     );
   });
 
-  test('fails a scenario that ran no test, which the game reports a success', async () => {
+  test(`fails a scenario that ran no test, which the game reports a success`, async () => {
     const [scenario] = await scenariosOf('preparation-failed');
 
     expect(scenario?.entries.at(-1)?.message).toStartWith('---| FINISH TEST SCENARIO (Success');
     expect(scenario?.failures).toEqual([
-      'it ran no test: its preparation failed, see the errors above',
-      'it logged an error'
+      `it ran no test: its preparation failed, see the errors above`,
+      `it logged an error`
     ]);
   });
 
-  test('fails a scenario with a failed test', async () => {
+  test(`fails a scenario with a failed test`, async () => {
     const [scenario] = await scenariosOf('test-failed');
 
     expect(scenario?.failures).toEqual([
-      'the game reported a failure',
-      '1 of its 2 tests failed',
-      'it logged an error'
+      `the game reported a failure`,
+      `1 of its 2 tests failed`,
+      `it logged an error`
     ]);
   });
 
-  test('fails a scenario that did not finish', async () => {
+  test(`fails a scenario that did not finish`, async () => {
     const [scenario] = await scenariosOf('unfinished');
 
-    expect(scenario?.failures).toEqual(['it did not finish']);
+    expect(scenario?.failures).toEqual([`it did not finish`]);
   });
 
-  test('reads no scenario from a log where none started', async () => {
+  test(`reads no scenario from a log where none started`, async () => {
     const entries = parseLog(await readFixture('passed'));
 
     expect(readScenarios(entries.slice(0, 1))).toEqual([]);
@@ -94,21 +94,21 @@ describe('classifyRun', () => {
   const running = {
     ...booting,
     automation: [
-      logEntry(-5, 'Main menu reached for the first time.'),
-      logEntry(0, 'Starting test scenarios.')
+      logEntry(-5, `Main menu reached for the first time.`),
+      logEntry(0, `Starting test scenarios.`)
     ],
     scenarios: [...booting.scenarios, logEntry(0, '---| START TEST SCENARIO: A scenario')]
   };
 
-  test('is running while the game boots, within the boot deadline', () => {
+  test(`is running while the game boots, within the boot deadline`, () => {
     expect(classifyRun({ ...booting, now: at(539) }, limits)).toBe('running');
   });
 
-  test('times out when the scenarios do not start within the boot deadline', () => {
+  test(`times out when the scenarios do not start within the boot deadline`, () => {
     expect(classifyRun({ ...booting, now: at(540) }, limits)).toBe('timed out');
   });
 
-  test('is running when the scenarios just started after a boot longer than the stall time', () => {
+  test(`is running when the scenarios just started after a boot longer than the stall time`, () => {
     const state = {
       ...running,
       scenarios: [logEntry(-300, '24 test scenario available')],
@@ -119,35 +119,35 @@ describe('classifyRun', () => {
     expect(classifyRun(state, limits)).toBe('running');
   });
 
-  test('is running while the scenarios log', () => {
+  test(`is running while the scenarios log`, () => {
     expect(classifyRun({ ...running, now: at(239) }, limits)).toBe('running');
   });
 
-  test('is running past the boot deadline once the scenarios started', () => {
+  test(`is running past the boot deadline once the scenarios started`, () => {
     const scenarios = [...running.scenarios, logEntry(899, '---| START TEST: A test')];
 
     expect(classifyRun({ ...running, scenarios, now: at(900) }, limits)).toBe('running');
   });
 
-  test('is stuck when the scenarios log nothing for the stall time', () => {
+  test(`is stuck when the scenarios log nothing for the stall time`, () => {
     expect(classifyRun({ ...running, now: at(240) }, limits)).toBe('stuck');
   });
 
-  test('times out past the run deadline', () => {
+  test(`times out past the run deadline`, () => {
     const scenarios = [...running.scenarios, logEntry(1739, '---| START TEST: A test')];
 
     expect(classifyRun({ ...running, scenarios, now: at(1740) }, limits)).toBe('timed out');
   });
 
-  test('died when the game is gone before the end of the scenarios', () => {
+  test(`died when the game is gone before the end of the scenarios`, () => {
     expect(classifyRun({ ...running, gameAlive: false }, limits)).toBe('died');
     expect(classifyRun({ ...booting, gameAlive: false }, limits)).toBe('died');
   });
 
-  test('finished once the game logged the end of the scenarios, whatever came after', () => {
+  test(`finished once the game logged the end of the scenarios, whatever came after`, () => {
     const finished = {
       ...running,
-      automation: [...running.automation, logEntry(60, 'Finished test scenarios.')]
+      automation: [...running.automation, logEntry(60, `Finished test scenarios.`)]
     };
 
     expect(classifyRun(finished, limits)).toBe('finished');

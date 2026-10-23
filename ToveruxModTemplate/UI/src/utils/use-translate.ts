@@ -5,7 +5,7 @@ import { type Localization, useLocalization } from 'cs2/l10n';
  *
  * `cs2/l10n` declares `Localization.translate` method-style, so destructuring it directly trips
  * `typescript/unbound-method` at every call site.
- * This hook centralizes that safe destructure behind a single suppression and hands back the plain
+ * This hook centralizes that safe destructure behind a single suppression, and hands back the plain
  * bound function, so components can `const translate = useTranslate()` without the false positive.
  */
 export function useTranslate(): Localization['translate'] {

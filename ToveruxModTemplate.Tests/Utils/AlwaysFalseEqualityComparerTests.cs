@@ -12,7 +12,6 @@ public sealed class AlwaysFalseEqualityComparerTests {
   }
 
   [Fact]
-  public void Equals_IsFalseForEqualValues() {
+  public void Equals_IsFalseForEqualValues() =>
     Assert.False(new AlwaysFalseEqualityComparer<int>().Equals(1, 1));
-  }
 }

@@ -7,15 +7,15 @@ import {
 import { getModuleExport, isRenderable } from '../../../../utils';
 
 /**
- * How a vanilla component hands a parent the handle on its root DOM element:
- * the wrapper publishes it, so that a parent gets the child subtree's root element
- * without a ref the child would have to forward.
+ * How a vanilla component hands a parent the handle on its root DOM element: the wrapper publishes
+ * it, so that a parent gets the child subtree's root element without a ref the child would have to
+ * forward.
  *
  * A host element as its child is served automatically.
- * A component has to claim the game's `DOMNodeContext` itself, through a stub to add on demand
- * with `getModuleExport`, and apply its `ref`, class and style to the element it renders:
- * one that ignores it leaves the parent measuring nothing,
- * which is how an anchored popup ends up positionless and hidden.
+ * A component has to claim the game's `DOMNodeContext` itself, through a stub to add on demand with
+ * `getModuleExport`, and apply its `ref`, class and style to the element it renders: one that
+ * ignores it leaves the parent measuring nothing, which is how an anchored popup ends up
+ * positionless and hidden.
  */
 export const DOMNodeModifier = getModuleExport<DOMNodeModifierComponent>(
   'game-ui/common/dom-node/dom-node.tsx',

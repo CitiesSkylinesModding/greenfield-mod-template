@@ -12,7 +12,7 @@ const sceneFlowLog = [
 ].join('\n');
 
 describe('parseLog', () => {
-  test('reads the stamp in local time, the level and the message', () => {
+  test(`reads the stamp in local time, the level and the message`, () => {
     const [first] = parseLog(sceneFlowLog);
 
     expect(first).toEqual({
@@ -22,8 +22,8 @@ describe('parseLog', () => {
     });
   });
 
-  test('joins the unstamped lines to the message before them', () => {
-    const error = parseLog(sceneFlowLog).find(entry => entry.level === 'ERROR');
+  test(`joins the unstamped lines to the message before them`, () => {
+    const error = parseLog(sceneFlowLog).find(entry => entry.level == 'ERROR');
 
     expect(error?.message).toBe(
       'System.NullReferenceException: Object reference not set\n' +
@@ -37,19 +37,19 @@ describe('parseLog', () => {
     expect(entries.map(entry => entry.level)).toEqual(['WARN', 'ERROR', 'INFO']);
   });
 
-  test('reads a log written with Windows line endings', () => {
+  test(`reads a log written with Windows line endings`, () => {
     expect(parseLog(sceneFlowLog.replaceAll('\n', '\r\n'))).toEqual(parseLog(sceneFlowLog));
   });
 });
 
 describe('errorEntries', () => {
-  test('keeps the entries at an error level', () => {
+  test(`keeps the entries at an error level`, () => {
     const errors = errorEntries(parseLog(sceneFlowLog));
 
     expect(errors.map(entry => entry.level)).toEqual(['ERROR']);
   });
 
-  test('keeps nothing from a clean log', () => {
+  test(`keeps nothing from a clean log`, () => {
     expect(errorEntries(parseLog('[2026-10-23 12:38:10,593] [INFO]  Boot completed'))).toEqual([]);
   });
 });

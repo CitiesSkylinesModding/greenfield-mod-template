@@ -16,9 +16,14 @@ namespace ToveruxModTemplate;
 
 [UsedImplicitly]
 public sealed class Mod : IMod {
+  // Mutable, as OnLoad sets both, not a constructor.
+  private static Mod? instanceValue;
+
+  private Settings? settingsValue;
+
   /// <summary>
-  /// A little more than a singleton,
-  /// it is set only when the mod has successfully finished its <see cref="OnLoad"/>.
+  /// A little more than a singleton, it is set only when the mod has successfully finished its
+  /// <see cref="OnLoad"/>.
   /// </summary>
   /// <exception cref="NullReferenceException">
   /// If the mod has not been loaded yet.
@@ -39,12 +44,8 @@ public sealed class Mod : IMod {
     LogManager.GetLogger(nameof(ToveruxModTemplate))
       .SetShowsErrorsInUI(true)
       .SetEffectiveness(Level.All),
-    key => key.Translate()
+    static key => key.Translate()
   );
-
-  private static Mod? instanceValue;
-
-  private Settings? settingsValue;
 
   public void OnLoad(UpdateSystem updateSystem) {
     try {

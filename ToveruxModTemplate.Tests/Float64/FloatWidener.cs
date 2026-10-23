@@ -15,8 +15,9 @@ namespace ToveruxModTemplate.Tests.Float64;
 /// Rewrites assemblies in place so that CoreCLR computes their float arithmetic the way Mono does
 /// with its float32 optimization off (<c>-O=-float32</c>; Mono 6.14 has it on by default): float
 /// values on the evaluation stack are doubles, and a store to a local, a field, an array element, a
-/// pointer, an argument or a return value narrows to float. Each instruction pushing a float gets a
-/// <c>conv.r8</c> after it, and CoreCLR's JIT narrows wherever a double reaches a float32 location.
+/// pointer, an argument, or a return value narrows to float.
+/// Each instruction pushing a float gets a <c>conv.r8</c> after it, and CoreCLR's JIT narrows
+/// wherever a double reaches a float32 location.
 /// </para>
 /// <para>
 /// The game's Mono computes floats that way outside Burst, as
@@ -41,16 +42,16 @@ internal static class FloatWidener {
 
   private static void Main(string[] args) {
     var references = args
-      .Where(arg => arg.StartsWith(FloatWidener.ReferencesOption))
-      .Select(arg => arg[FloatWidener.ReferencesOption.Length..])
+      .Where(static arg => arg.StartsWith(FloatWidener.ReferencesOption))
+      .Select(static arg => arg[FloatWidener.ReferencesOption.Length..])
       .ToArray();
 
     // A list file keeps the command short: cmd.exe, which runs MSBuild's Exec on Windows, cuts it
     // at 8191 characters.
     var paths = args
-      .Where(arg => !arg.StartsWith(FloatWidener.ReferencesOption))
-      .SelectMany(arg => arg.StartsWith('@')
-        ? File.ReadAllLines(arg[1..]).Where(line => line.Length > 0)
+      .Where(static arg => !arg.StartsWith(FloatWidener.ReferencesOption))
+      .SelectMany(static arg => arg.StartsWith('@')
+        ? File.ReadAllLines(arg[1..]).Where(static line => line.Length > 0)
         : [arg]
       );
 
@@ -63,6 +64,7 @@ internal static class FloatWidener {
     var started = DateTime.UtcNow;
     var pdb = Path.ChangeExtension(path, ".pdb");
     var withSymbols = File.Exists(pdb);
+    // A full file path always has a parent directory, so GetDirectoryName cannot return null.
     var directory = Path.GetDirectoryName(Path.GetFullPath(path))!;
 
     using var resolver = new InMemoryResolver();
@@ -89,9 +91,9 @@ internal static class FloatWidener {
     }
 
     var conversions = module.GetTypes()
-      .SelectMany(type => type.Methods)
-      .Where(method => method.HasBody)
-      .Sum(method => FloatWidener.WidenBody(method.Body));
+      .SelectMany(static type => type.Methods)
+      .Where(static method => method.HasBody)
+      .Sum(static method => FloatWidener.WidenBody(method.Body));
 
     module.Types.Add(
       new TypeDefinition(
@@ -177,7 +179,7 @@ internal static class FloatWidener {
       return type;
     }
 
-    var arguments = parameter.Type == GenericParameterType.Type
+    var arguments = parameter.Type is GenericParameterType.Type
       ? member.DeclaringType as IGenericInstance
       : member as IGenericInstance;
 
@@ -190,7 +192,7 @@ internal static class FloatWidener {
   private static bool IsSingle(TypeReference type) =>
     type is IModifierType modified
       ? FloatWidener.IsSingle(modified.ElementType)
-      : type.MetadataType == MetadataType.Single;
+      : type.MetadataType is MetadataType.Single;
 
   /// <summary>
   /// Reads referenced assemblies into memory: the default resolver keeps them open, and Windows

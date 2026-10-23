@@ -12,7 +12,7 @@ public sealed class ModLogTests {
   public ModLogTests() {
     (var log, this.recorder) = RecordingLog.Create();
 
-    this.modLog = new ModLog(log, key => $"<{key}>");
+    this.modLog = new ModLog(log, static key => $"<{key}>");
   }
 
   [Fact]
@@ -24,7 +24,7 @@ public sealed class ModLogTests {
 
     Assert.Equal(
       [("Verbose", "v"), ("Info", "i"), ("Warn", "w"), ("Error", "e")],
-      this.recorder.Calls.ConvertAll(call => (call.Method, call.Args[0]))
+      this.recorder.Calls.ConvertAll(static call => (call.Method, call.Args[0]))
     );
   }
 

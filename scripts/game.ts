@@ -27,50 +27,50 @@ import type { BunFile } from 'bun';
 import { requireEnvironment } from './environment';
 import { type LogEntry, parseLog } from './game-log';
 
-const steamAppId = 949_230;
+const STEAM_APP_ID = 949_230;
 
 /**
  * The guid of Archipelago, a map of the base game.
  */
-const archipelagoGuid = 'bf8036b291428535b986c757fda3e627';
+const ARCHIPELAGO_GUID = 'bf8036b291428535b986c757fda3e627';
 
 /**
  * Seconds a game asked to quit gets before it is killed.
  */
-const quitGraceSeconds = 60;
+const QUIT_GRACE_SECONDS = 60;
 
 /**
  * Seconds a game asked to end, then ended by force, and Steam's reaper for it, take to go.
  */
-const killSeconds = 30;
+const KILL_SECONDS = 30;
 
 /**
  * Launches tried, and seconds each waits for the game's process.
  */
-const launchAttempts = 3;
-const launchSeconds = 60;
+const LAUNCH_ATTEMPTS = 3;
+const LAUNCH_SECONDS = 60;
 
 /**
  * Milliseconds between two checks of the game or of its logs.
  */
-const pollMilliseconds = 3000;
+const POLL_MILLISECONDS = 3000;
 
 /**
  * Seconds a boot may take: a slow day loads the prefabs for over six minutes.
  */
-export const bootSeconds = 600;
+export const BOOT_SECONDS = 600;
 
 /**
  * Seconds a city or a map may take to load.
  */
-export const loadSeconds = 300;
+export const LOAD_SECONDS = 300;
 
 /**
  * Seconds the loading screen stays up after the game logged the end of a load.
  */
-const loadingScreenSeconds = 20;
+const LOADING_SCREEN_SECONDS = 20;
 
-const isWindows = process.platform === 'win32';
+const isWindows = process.platform == 'win32';
 
 export const userDataPath = requireEnvironment('CSII_USERDATAPATH');
 
@@ -104,7 +104,7 @@ export async function gamePids(): Promise<number[]> {
     ...pids,
     ...reapers
       .split('\n')
-      .filter(line => line.includes(`AppId=${steamAppId}`))
+      .filter(line => line.includes(`AppId=${STEAM_APP_ID}`))
       .map(line => Number(line.split(' ')[0]))
   ];
 }
@@ -121,7 +121,7 @@ export async function isGameOrReaperRunning(): Promise<boolean> {
 /**
  * Stops the game: waits `graceSeconds` for a game asked to quit, then kills it.
  */
-export async function stopGame(graceSeconds = quitGraceSeconds): Promise<void> {
+export async function stopGame(graceSeconds = QUIT_GRACE_SECONDS): Promise<void> {
   if (!(await isGameOrReaperRunning())) {
     return;
   }
@@ -141,7 +141,7 @@ export async function stopGame(graceSeconds = quitGraceSeconds): Promise<void> {
   for (const force of [false, true]) {
     await killGame(force);
 
-    if (await waitUntil(async () => !(await isGameOrReaperRunning()), killSeconds)) {
+    if (await waitUntil(async () => !(await isGameOrReaperRunning()), KILL_SECONDS)) {
       return;
     }
   }
@@ -155,17 +155,17 @@ export async function stopGame(graceSeconds = quitGraceSeconds): Promise<void> {
 }
 
 /**
- * Launches the stopped game through Steam, with game options written to `runOnce.txt`, and
- * returns once its process runs.
+ * Launches the stopped game through Steam, with game options written to `runOnce.txt`, and returns
+ * once its process runs.
  */
 export async function launchGame(gameOptions: readonly string[]): Promise<void> {
-  const url = `steam://rungameid/${steamAppId}`;
+  const url = `steam://rungameid/${STEAM_APP_ID}`;
   const runOncePath = path.join(userDataPath, 'runOnce.txt');
 
   let launched = false;
 
   try {
-    for (let attempt = 1; attempt <= launchAttempts && !launched; attempt++) {
+    for (let attempt = 1; attempt <= LAUNCH_ATTEMPTS && !launched; attempt++) {
       // What a failed launch left, a reaper for one, makes Steam ignore the next.
       await stopGame(0);
       await Bun.write(runOncePath, ['--noSplash', ...gameOptions].join(' '));
@@ -180,7 +180,7 @@ export async function launchGame(gameOptions: readonly string[]): Promise<void> 
       );
 
       // The game's process itself: a launch starts and ends a first reaper before the game's.
-      launched = await waitUntil(isGameProcessRunning, launchSeconds);
+      launched = await waitUntil(isGameProcessRunning, LAUNCH_SECONDS);
 
       if (launched) {
         // The game ignores an option it does not know, a mistyped one of this script's included.
@@ -201,7 +201,7 @@ export async function launchGame(gameOptions: readonly string[]): Promise<void> 
 
   if (!launched) {
     throw new Error(
-      `The game did not start after ${launchAttempts} launches through Steam: Steam may be ` +
+      `The game did not start after ${LAUNCH_ATTEMPTS} launches through Steam: Steam may be ` +
         `closed, signed out, updating the game, or showing a dialog. Check Steam, then retry.`
     );
   }
@@ -212,13 +212,13 @@ export async function launchGame(gameOptions: readonly string[]): Promise<void> 
  */
 async function waitForMainMenu(launchTime: Date): Promise<void> {
   const reached = await waitForSceneFlow(
-    entries => entries.some(entry => entry.message === 'MainMenu reached'),
+    entries => entries.some(entry => entry.message == 'MainMenu reached'),
     launchTime,
-    bootSeconds
+    BOOT_SECONDS
   );
 
   if (!reached) {
-    throw new Error(`No main menu after ${bootSeconds} s, see ${sceneFlowLogPath}.`);
+    throw new Error(`No main menu after ${BOOT_SECONDS} s, see ${sceneFlowLogPath}.`);
   }
 }
 
@@ -236,18 +236,17 @@ async function waitForLoad(launchTime?: Date): Promise<void> {
       const loadStart = entries.findLastIndex(entry => entry.message.startsWith('Loading mode '));
       const loadEntry = entries[loadStart];
 
-      fellBack =
-        launchTime !== undefined && entries.some(entry => entry.message === 'MainMenu reached');
+      fellBack = launchTime != null && entries.some(entry => entry.message == 'MainMenu reached');
 
       completedAt =
         loadEntry && /^Loading mode (?:Game|Editor) /u.test(loadEntry.message)
-          ? entries.slice(loadStart).find(entry => entry.message === 'Loading completed')?.time
+          ? entries.slice(loadStart).find(entry => entry.message == 'Loading completed')?.time
           : undefined;
 
-      return completedAt !== undefined;
+      return completedAt != null;
     },
     launchTime ?? new Date(0),
-    loadSeconds + (launchTime ? bootSeconds : 0),
+    LOAD_SECONDS + (launchTime ? BOOT_SECONDS : 0),
     () => fellBack
   );
 
@@ -259,7 +258,7 @@ async function waitForLoad(launchTime?: Date): Promise<void> {
     throw new Error(`Nothing loaded within the time allowed, see ${sceneFlowLogPath}.`);
   }
 
-  await Bun.sleep(Math.max(0, completedAt.getTime() + loadingScreenSeconds * 1000 - Date.now()));
+  await Bun.sleep(Math.max(0, completedAt.getTime() + LOADING_SCREEN_SECONDS * 1000 - Date.now()));
 }
 
 /**
@@ -288,7 +287,7 @@ export async function waitUntil(
       return true;
     }
 
-    await Bun.sleep(pollMilliseconds);
+    await Bun.sleep(POLL_MILLISECONDS);
   }
 
   return condition();
@@ -333,9 +332,9 @@ async function main(args: readonly string[]): Promise<void> {
         throw await withGameState(error);
       }
 
-      console.log(
-        `game: ${startGuid ? 'loaded' : 'main menu'}, ${secondsSince(launchTime)} s after the launch`
-      );
+      const reached = startGuid ? 'loaded' : 'main menu';
+
+      console.log(`game: ${reached}, ${secondsSince(launchTime)} s after the launch`);
 
       return;
     }
@@ -349,7 +348,7 @@ async function main(args: readonly string[]): Promise<void> {
     case 'wait-load': {
       // A load the stopped game logged last would pass for this one.
       if (!(await isGameProcessRunning())) {
-        throw new Error('The game is not running.');
+        throw new Error(`The game is not running.`);
       }
 
       try {
@@ -373,8 +372,8 @@ async function main(args: readonly string[]): Promise<void> {
 }
 
 /**
- * The error of a wait that gave up, with what to do about the game it leaves: a hung game stays
- * up, for a look with the unity eval before it is stopped.
+ * The error of a wait that gave up, with what to do about the game it leaves: a hung game stays up,
+ * for a look with the unity eval before it is stopped.
  */
 async function withGameState(error: unknown): Promise<Error> {
   const message = error instanceof Error ? error.message : String(error);
@@ -385,12 +384,13 @@ async function withGameState(error: unknown): Promise<Error> {
 
 /**
  * Reads `restart`'s options: the guid of what to start the game with, and the game options, every
- * other argument (mise drops a `--` that would have parted them). The game's `--startGame` loads
- * a save or starts a new city on a map as soon as it booted, which no main menu trigger races.
+ * other argument (mise drops a `--` that would have parted them).
+ * The game's `--startGame` loads a save or starts a new city on a map as soon as it booted, which
+ * no main menu trigger races.
  */
 async function readRestartOptions(
   options: readonly string[]
-): Promise<{ startGuid: string | undefined; gameOptions: string[] }> {
+): Promise<{ readonly startGuid: string | undefined; readonly gameOptions: readonly string[] }> {
   const gameOptions: string[] = [];
 
   let startGuid: string | undefined;
@@ -401,19 +401,19 @@ async function readRestartOptions(
     // The game takes `-option` as it takes `--option`: a name never starts with a dash.
     const name = next?.startsWith('-') ? undefined : next;
 
-    if (option === '--load') {
+    if (option == '--load') {
       if (!name) {
-        throw new Error('--load takes the name of a save.');
+        throw new Error(`--load takes the name of a save.`);
       }
 
       startGuid = await findSaveGuid(name);
       index++;
-    } else if (option === '--new') {
+    } else if (option == '--new') {
       if (name) {
         startGuid = /^[\da-f]{32}$/u.test(name) ? name : await findMapGuid(name);
         index++;
       } else {
-        startGuid = archipelagoGuid;
+        startGuid = ARCHIPELAGO_GUID;
       }
     } else if (option) {
       gameOptions.push(option);
@@ -450,8 +450,8 @@ async function waitForSceneFlow(
 
 /**
  * Reads the guid of a user asset from its `.cok` archive, the zip the game writes it in, which
- * holds the guid as a `<name>.<type>.cid` entry. Reads only the archive's directory and that
- * entry: a save weighs tens of megabytes.
+ * holds the guid as a `<name>.<type>.cid` entry.
+ * Reads only the archive's directory and that entry: a save weighs tens of megabytes.
  */
 async function readAssetGuid(folder: string, name: string, type: string): Promise<string> {
   // The assets lie in a folder per Steam user.
@@ -487,7 +487,7 @@ async function readStoredZipEntry(archive: BunFile, entryName: string): Promise<
 
   let end = tail.byteLength - 22;
 
-  while (end >= 0 && tail.getUint32(end, true) !== endOfDirectorySignature) {
+  while (end >= 0 && tail.getUint32(end, true) != endOfDirectorySignature) {
     end--;
   }
 
@@ -509,7 +509,7 @@ async function readStoredZipEntry(archive: BunFile, entryName: string): Promise<
       new Uint8Array(directory.buffer, offset + 46, nameLength)
     );
 
-    if (name === entryName) {
+    if (name == entryName) {
       break;
     }
 
@@ -524,7 +524,7 @@ async function readStoredZipEntry(archive: BunFile, entryName: string): Promise<
     throw new Error(`${archive.name} holds no ${entryName}.`);
   }
 
-  if (directory.getUint16(offset + 10, true) !== 0) {
+  if (directory.getUint16(offset + 10, true) != 0) {
     throw new Error(`${archive.name} compresses ${entryName}, which this reader does not read.`);
   }
 

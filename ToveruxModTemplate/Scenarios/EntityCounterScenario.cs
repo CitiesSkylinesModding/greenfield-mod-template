@@ -9,9 +9,9 @@ using ToveruxModTemplate.Systems;
 namespace ToveruxModTemplate.Scenarios;
 
 /// <summary>
-/// Starts a new city on Archipelago and checks what <see cref="EntityCounterSystem"/> computes:
-/// the count of each kind of entity, against the count of the same query on the main thread, and
-/// the simulation date, against the starting year the scenario sets.
+/// Starts a new city on Archipelago and checks what <see cref="EntityCounterSystem"/> computes: the
+/// count of each kind of entity, against the count of the same query on the main thread, and the
+/// simulation date, against the starting year the scenario sets.
 /// </summary>
 [TestDescriptor(
   $"{nameof(ToveruxModTemplate)}: Entity counter",
@@ -20,17 +20,18 @@ namespace ToveruxModTemplate.Scenarios;
 [UsedImplicitly]
 internal sealed class EntityCounterScenario : ModTestScenario {
   /// <summary>
+  /// A year no map starts in, so the date check cannot pass on the map's own starting year.
+  /// </summary>
+  private const int StartingYear = 2042;
+
+  /// <summary>
   /// Archipelago, a map of the base game, by the guid the game's own scenarios load it with.
   /// </summary>
   private static readonly Hash128 ArchipelagoGuid = Hash128.Parse(
     "bf8036b291428535b986c757fda3e627"
   );
 
-  /// <summary>
-  /// A year no map starts in, so the date check cannot pass on the map's own starting year.
-  /// </summary>
-  private const int StartingYear = 2042;
-
+  // Set in OnPrepare, which the runner awaits before any test: hence mutable, and null! until then.
   private EntityCounterSystem entityCounterSystem = null!;
 
   /// <summary>
@@ -86,7 +87,7 @@ internal sealed class EntityCounterScenario : ModTestScenario {
     var year = this.entityCounterSystem.Date.Year;
 
     this.Check(
-      year == EntityCounterScenario.StartingYear,
+      year is EntityCounterScenario.StartingYear,
       $"year {year}, the city started in {EntityCounterScenario.StartingYear}"
     );
 

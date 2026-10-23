@@ -31,9 +31,9 @@ export default defineConfig({
     // its hooks reach components through an object and never can. The game pins React 18 and runs
     // no compiler, so the analysis buys nothing here.
     'react/hooks': 'off',
-    // Mods routinely pass typed binding command functions (e.g. `bindings.openSettings`)
-    // directly as `onSelect`/`onChange` handlers; those command names cannot follow the rule's
-    // `handle*` convention, so enforcing it here only fights the binding pattern.
+    // Mods routinely pass typed binding command functions (e.g. `bindings.openSettings`) directly
+    // as `onSelect`/`onChange` handlers; those command names cannot follow the rule's `handle*`
+    // convention, so enforcing it here only fights the binding pattern.
     'react/jsx-handler-names': 'off',
     // In this project we often split big components into smaller ones but keep them in one file.
     // But that is only for components that are very tied to their parent; generic components must

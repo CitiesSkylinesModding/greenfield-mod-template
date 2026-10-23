@@ -44,6 +44,7 @@ internal sealed class InputActionBinding : CompositeBinding {
   /// binding instance.
   /// </summary>
   internal sealed class BindingValueBinding : ValueBinding<ProxyBinding> {
+    // Rebuilt on each attachment, see Attach.
     private ProxyBinding.Watcher? watcher;
 
     internal BindingValueBinding(
@@ -104,6 +105,17 @@ internal sealed class InputActionBinding : CompositeBinding {
       this.action.onInteraction += this.OnActionInteraction;
     }
 
+    public override void Detach() {
+      base.Detach();
+
+      this.action.onInteraction -= this.OnActionInteraction;
+      this.action.shouldBeEnabled = false;
+
+      // A phase change while detached is never received, so the value re-attaches as idle rather
+      // than replaying a stale Performed (decompile, ValueBinding.OnSubscribe re-sends it).
+      this.Update(InputActionPhase.Waiting);
+    }
+
     protected override void OnSubscribe() {
       base.OnSubscribe();
 
@@ -116,19 +128,6 @@ internal sealed class InputActionBinding : CompositeBinding {
       this.action.shouldBeEnabled = this.active;
     }
 
-    public override void Detach() {
-      base.Detach();
-
-      this.action.onInteraction -= this.OnActionInteraction;
-      this.action.shouldBeEnabled = false;
-
-      // A phase change while detached is never received, so the value re-attaches as idle rather
-      // than replaying a stale Performed (decompile, ValueBinding.OnSubscribe re-sends it).
-      this.Update(InputActionPhase.Waiting);
-    }
-
-    private void OnActionInteraction(ProxyAction _, InputActionPhase phase) {
-      this.Update(phase);
-    }
+    private void OnActionInteraction(ProxyAction _, InputActionPhase phase) => this.Update(phase);
   }
 }

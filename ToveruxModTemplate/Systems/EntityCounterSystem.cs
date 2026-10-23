@@ -17,22 +17,13 @@ using Purpose = Colossal.Serialization.Entities.Purpose;
 namespace ToveruxModTemplate.Systems;
 
 /// <summary>
-/// Counts the city's entities of the kind <see cref="Settings.CountedEntity"/> selects,
-/// with a Burst job, and reads the simulation date.
+/// Counts the city's entities of the kind <see cref="Settings.CountedEntity"/> selects, with a
+/// Burst job, and reads the simulation date.
 /// Runs every frame of a game, paused or not, so the count follows a setting change within a frame.
 /// </summary>
 internal sealed partial class EntityCounterSystem : GameSystemBase {
-  /// <summary>
-  /// The count of the last finished job, one frame behind the city.
-  /// </summary>
-  internal int Count { get; private set; }
-
-  /// <summary>
-  /// The simulation date, as <see cref="TimeSystem.GetCurrentDateTime"/> builds it: the
-  /// <see cref="DateTime.DayOfYear"/> holds the in-game month, one-based.
-  /// </summary>
-  internal DateTime Date { get; private set; }
-
+  // Created in OnCreate, which the game runs before any other member: hence mutable, and the time
+  // system null! until then.
   private TimeSystem timeSystem = null!;
 
   private EntityQuery buildingsQuery;
@@ -43,7 +34,19 @@ internal sealed partial class EntityCounterSystem : GameSystemBase {
 
   private NativeReference<int> countResult;
 
+  // The job scheduled each frame, completed the next.
   private JobHandle countJobHandle;
+
+  /// <summary>
+  /// The count of the last finished job, one frame behind the city.
+  /// </summary>
+  internal int Count { get; private set; }
+
+  /// <summary>
+  /// The simulation date, as <see cref="TimeSystem.GetCurrentDateTime"/> builds it: the
+  /// <see cref="DateTime.DayOfYear"/> holds the in-game month, one-based.
+  /// </summary>
+  internal DateTime Date { get; private set; }
 
   #if DEBUG
   /// <summary>
@@ -57,7 +60,9 @@ internal sealed partial class EntityCounterSystem : GameSystemBase {
 
     using var count = new NativeReference<int>(Allocator.TempJob);
 
-    new CountEntitiesJob { count = count }.Run(system.GetQuery(kind));
+    new CountEntitiesJob {
+      count = count
+    }.Run(system.GetQuery(kind));
 
     return count.Value;
   }
@@ -76,6 +81,14 @@ internal sealed partial class EntityCounterSystem : GameSystemBase {
     useEnabledMask
       ? math.countbits(chunkEnabledMask.ULong0) + math.countbits(chunkEnabledMask.ULong1)
       : chunkEntityCount;
+
+  internal EntityQuery GetQuery(Settings.EntityKind kind) =>
+    kind switch {
+      Settings.EntityKind.Buildings => this.buildingsQuery,
+      Settings.EntityKind.Citizens => this.citizensQuery,
+      Settings.EntityKind.Vehicles => this.vehiclesQuery,
+      _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
+    };
 
   protected override void OnCreate() {
     base.OnCreate();
@@ -103,7 +116,7 @@ internal sealed partial class EntityCounterSystem : GameSystemBase {
   protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode) {
     base.OnGameLoadingComplete(purpose, mode);
 
-    this.Enabled = mode == GameMode.Game;
+    this.Enabled = mode is GameMode.Game;
 
     // Forget the previous city's count.
     this.countJobHandle.Complete();
@@ -118,7 +131,9 @@ internal sealed partial class EntityCounterSystem : GameSystemBase {
 
     this.countResult.Value = 0;
 
-    this.countJobHandle = new CountEntitiesJob { count = this.countResult }.Schedule(
+    this.countJobHandle = new CountEntitiesJob {
+      count = this.countResult
+    }.Schedule(
       this.GetQuery(Mod.Settings.CountedEntity),
       this.Dependency
     );
@@ -128,16 +143,9 @@ internal sealed partial class EntityCounterSystem : GameSystemBase {
     this.Date = this.timeSystem.GetCurrentDateTime();
   }
 
-  internal EntityQuery GetQuery(Settings.EntityKind kind) => kind switch {
-    Settings.EntityKind.Buildings => this.buildingsQuery,
-    Settings.EntityKind.Citizens => this.citizensQuery,
-    Settings.EntityKind.Vehicles => this.vehiclesQuery,
-    _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
-  };
-
   /// <summary>
-  /// A query on the entities carrying <typeparamref name="T"/>,
-  /// leaving out those deleted this frame and the previews of a tool in use.
+  /// A query on the entities carrying <typeparamref name="T"/>, leaving out those deleted this
+  /// frame and the previews of a tool in use.
   /// </summary>
   private EntityQuery CreateCountQuery<T>() =>
     this.GetEntityQuery(

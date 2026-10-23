@@ -35,7 +35,7 @@ describe('findWidenedAssemblies', () => {
     await rm(repository, { recursive: true });
   });
 
-  test('finds the marked assemblies, outside node_modules and dot folders', async () => {
+  test(`finds the marked assemblies, outside node_modules and dot folders`, async () => {
     const found = await findWidenedAssemblies(repository);
 
     expect(found.map(file => path.relative(repository, file)).toSorted()).toEqual([
@@ -52,7 +52,7 @@ describe('findWidenedAssemblies', () => {
     ]);
   });
 
-  test('finds none in a missing folder, as the Mods folder before a deploy', async () => {
+  test(`finds none in a missing folder, as the Mods folder before a deploy`, async () => {
     expect(await findWidenedAssemblies(path.join(repository, 'Mods'))).toEqual([]);
   });
 });

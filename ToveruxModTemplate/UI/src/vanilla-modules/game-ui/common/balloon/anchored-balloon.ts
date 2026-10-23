@@ -59,8 +59,8 @@ export interface AnchoredBalloonProps {
  * opposite one when the chosen side would put it off-screen.
  *
  * Reached directly rather than through `Tooltip`, the component that would normally own it:
- * `Tooltip` still passes `direction` and `alignment` as flat props, which this no longer reads, so
- * every tooltip placed through it lands `up`.
+ * `Tooltip` passes `direction` and `alignment` as flat props, which this does not read, so every
+ * tooltip placed through it lands `up`.
  * Only {@link BalloonUiTarget} gets through.
  */
 export const AnchoredBalloon = getModuleExport<FC<AnchoredBalloonProps>>(

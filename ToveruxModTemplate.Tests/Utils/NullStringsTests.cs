@@ -49,6 +49,7 @@ public sealed class NullStringsTests {
   [Fact]
   public void Restore_SkipsAStringWithoutAPublicSetter() {
     var loaded = new FakeSettings();
+
     loaded.SetHidden(null);
 
     NullStrings.Restore(loaded, new FakeSettings());

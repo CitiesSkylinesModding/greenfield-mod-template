@@ -35,7 +35,7 @@ internal static class NullStrings {
     var properties = target
       .GetType()
       .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-      .Where(property =>
+      .Where(static property =>
         property.PropertyType == typeof(string) &&
         property.GetIndexParameters().Length is 0 &&
         property.GetGetMethod() is not null &&

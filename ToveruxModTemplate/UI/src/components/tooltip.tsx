@@ -26,7 +26,7 @@ export interface TooltipProps {
 }
 
 /**
- * A tooltip that opens on the side it is asked to, which the vanilla `Tooltip` no longer does: it
+ * A tooltip that opens on the side it is asked to, which the vanilla `Tooltip` does not do: it
  * hands the balloon `direction` and `alignment` as flat props, and the balloon reads them off its
  * `balloonUiTarget` instead, so every tooltip in the game opens `up` whatever it asked for.
  * This drives the same balloon through the channel it actually reads, so it keeps working either

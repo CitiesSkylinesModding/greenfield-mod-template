@@ -58,9 +58,10 @@ const testFinishPattern = /^---\| FINISH TEST \((?<outcome>Success|Failure), /u;
 /**
  * Splits the entries of `TestScenarios.log` into its scenarios, and judges each one.
  * The game's own verdict is not enough: when the preparation of a scenario throws (a load that
- * failed, or errors logged before it started), the game logs the error, runs no test and still
- * reports the scenario a success. So a scenario passes only when the game reports it a success,
- * at least one of its tests finished, and nothing in it was logged at an error level.
+ * failed, or errors logged before it started), the game logs the error, runs no test, and still
+ * reports the scenario a success.
+ * So a scenario passes only when the game reports it a success, at least one of its tests finished,
+ * and nothing in it was logged at an error level.
  */
 export function readScenarios(entries: readonly LogEntry[]): ScenarioResult[] {
   const scenarios: ScenarioResult[] = [];
@@ -70,7 +71,7 @@ export function readScenarios(entries: readonly LogEntry[]): ScenarioResult[] {
   for (const entry of entries) {
     const startName = scenarioStartPattern.exec(entry.message)?.groups?.name;
 
-    if (startName !== undefined) {
+    if (startName != null) {
       if (current) {
         scenarios.push(judgeScenario(current.name, current.entries));
       }
@@ -88,7 +89,7 @@ export function readScenarios(entries: readonly LogEntry[]): ScenarioResult[] {
 
     const finish = scenarioFinishPattern.exec(entry.message)?.groups;
 
-    if (finish?.name === current.name) {
+    if (finish?.name == current.name) {
       scenarios.push(judgeScenario(current.name, current.entries, finish.outcome));
 
       current = undefined;
@@ -103,16 +104,13 @@ export function readScenarios(entries: readonly LogEntry[]): ScenarioResult[] {
 }
 
 /**
- * How the run stands: finished once the game logged the end of its scenarios, died when the game
- * is gone before that, stuck when a scenario logs nothing for too long, timed out past a deadline.
+ * How the run stands: finished once the game logged the end of its scenarios, died when the game is
+ * gone before that, stuck when a scenario logs nothing for too long, timed out past a deadline.
  */
 export function classifyRun(state: RunState, limits: RunLimits): RunVerdict {
-  const automationEntry = (message: string): LogEntry | undefined =>
-    state.automation.find(entry => entry.message === message);
-
   const elapsedSeconds = (state.now.getTime() - state.launchTime.getTime()) / 1000;
 
-  if (automationEntry('Finished test scenarios.')) {
+  if (automationEntry(`Finished test scenarios.`)) {
     return 'finished';
   }
 
@@ -120,7 +118,7 @@ export function classifyRun(state: RunState, limits: RunLimits): RunVerdict {
     return 'died';
   }
 
-  const scenariosStart = automationEntry('Starting test scenarios.');
+  const scenariosStart = automationEntry(`Starting test scenarios.`);
 
   if (!scenariosStart) {
     return elapsedSeconds >= limits.bootSeconds ? 'timed out' : 'running';
@@ -138,6 +136,10 @@ export function classifyRun(state: RunState, limits: RunLimits): RunVerdict {
   }
 
   return elapsedSeconds >= limits.runSeconds ? 'timed out' : 'running';
+
+  function automationEntry(message: string): LogEntry | undefined {
+    return state.automation.find(entry => entry.message == message);
+  }
 }
 
 function judgeScenario(
@@ -147,30 +149,30 @@ function judgeScenario(
 ): ScenarioResult {
   const failures: string[] = [];
 
-  if (outcome === undefined) {
-    failures.push('it did not finish');
-  } else if (outcome !== 'Success') {
-    failures.push('the game reported a failure');
+  if (outcome == null) {
+    failures.push(`it did not finish`);
+  } else if (outcome != 'Success') {
+    failures.push(`the game reported a failure`);
   }
 
   const testOutcomes = entries.flatMap(entry => {
     const testOutcome = testFinishPattern.exec(entry.message)?.groups?.outcome;
 
-    return testOutcome === undefined ? [] : [testOutcome];
+    return testOutcome == null ? [] : [testOutcome];
   });
 
-  if (outcome !== undefined && testOutcomes.length === 0) {
-    failures.push('it ran no test: its preparation failed, see the errors above');
+  if (outcome != null && testOutcomes.length == 0) {
+    failures.push(`it ran no test: its preparation failed, see the errors above`);
   }
 
-  const failedTests = testOutcomes.filter(testOutcome => testOutcome !== 'Success').length;
+  const failedTests = testOutcomes.filter(testOutcome => testOutcome != 'Success').length;
 
   if (failedTests > 0) {
     failures.push(`${failedTests} of its ${testOutcomes.length} tests failed`);
   }
 
   if (errorEntries(entries).length > 0) {
-    failures.push('it logged an error');
+    failures.push(`it logged an error`);
   }
 
   return { name, entries, failures };
