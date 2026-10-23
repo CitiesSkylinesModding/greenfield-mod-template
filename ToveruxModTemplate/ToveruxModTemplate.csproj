@@ -112,6 +112,22 @@
     </ItemGroup>
   </Target>
 
+  <!-- The csproj Version, ChangeLog.md and LongDescription.md are the sources of the publish
+       configuration's version, changelog and description, poked into it on every build, so
+       Paradox Mods and the GitHub release render the same text. XmlPoke parses the value it writes
+       into an element as XML, hence the escapes: a changelog line may hold a `&` or a `<`. -->
+  <Target Name="PokePublishConfiguration" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <_ChangeLog>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\ChangeLog.md'))</_ChangeLog>
+      <_ChangeLog>$(_ChangeLog.Replace('&amp;', '&amp;amp;').Replace('&lt;', '&amp;lt;'))</_ChangeLog>
+      <_LongDescription>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\LongDescription.md'))</_LongDescription>
+      <_LongDescription>$(_LongDescription.Replace('&amp;', '&amp;amp;').Replace('&lt;', '&amp;lt;'))</_LongDescription>
+    </PropertyGroup>
+    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Query="//ModVersion/@Value" Value="$(Version)" />
+    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Query="//ChangeLog" Value="$(_ChangeLog)" />
+    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Query="//LongDescription" Value="$(_LongDescription)" />
+  </Target>
+
   <!-- AfterTargets runs a target even when the one it follows was skipped, hence the NeedBuild
        guard: the UI deploy is skipped with the C# one, in a configuration-only publish too. -->
   <Target Name="BuildUI" AfterTargets="DeployWIP"

@@ -6,6 +6,13 @@
 [tools]
 bun = "1.4.4"
 dotnet = "10.0.402"
+oxipng = "10.2.1"
+
+[env]
+# The Crowdin project `mise l10n:pull` and `mise l10n:push` work on, by its numeric ID. The token
+# they also need, CROWDIN_PERSONAL_TOKEN, is a secret: export it, or set it in mise.local.toml,
+# which git ignores.
+CROWDIN_PROJECT_ID = ""
 
 # DEVELOPMENT TASKS
 # =================
@@ -221,3 +228,38 @@ run = "bun scripts/game.ts"
 description = "Builds the mod in Release and publishes it as a new version on Paradox Mods."
 raw = true
 run = "dotnet publish ToveruxModTemplate/ToveruxModTemplate.csproj -p:PublishProfile=PublishNewVersion"
+
+[tasks."publish:page"]
+description = "Updates the Paradox Mods page from PublishConfiguration.xml (description, tags, thumbnail and screenshots) without shipping a version."
+depends = ["images:optimize"]
+raw = true
+run = "dotnet publish ToveruxModTemplate/ToveruxModTemplate.csproj -p:PublishProfile=UpdatePublishedConfiguration"
+
+# LOCALIZATION TASKS
+# ==================
+
+[tasks."l10n:pull"]
+description = "Pulls Crowdin's current translations of the source keys added or changed since `--base` into the locale files, so a volunteer's pending work is seen before the repo gets translations of its own. Previews by default; pass `--write` to apply. Needs CROWDIN_PROJECT_ID and CROWDIN_PERSONAL_TOKEN."
+raw = true
+run = "bun scripts/crowdin-pull-translations.ts"
+
+[tasks."l10n:push"]
+description = "Pushes the locale-file edits to Crowdin and approves only the strings that changed, so a repo edit survives the next pull; `--no-approve` pushes them unapproved, left for proofreaders. Previews by default; pass `--push` to apply. Needs CROWDIN_PROJECT_ID and CROWDIN_PERSONAL_TOKEN."
+raw = true
+run = "bun scripts/crowdin-push-translations.ts"
+
+# ASSET TASKS
+# ===========
+
+# Every image PublishConfiguration.xml uploads to Paradox Mods sits in ToveruxModTemplate/Properties.
+# Paradox Mods serves the previews byte for byte, so pngquant cuts them to a 256-colour palette,
+# indistinguishable at full size. The thumbnail stays lossless: Paradox re-encodes it to JPEG
+# anyway. oxipng then recompresses every image without touching a pixel. Rerunning changes no pixel.
+# On Windows, cmd passes the globs through unexpanded: both tools expand them themselves (oxipng's
+# source, pngquant-bin's Rust build run under Wine).
+[tasks."images:optimize"]
+description = "Shrinks the Paradox Mods images in ToveruxModTemplate/Properties: pngquant cuts the previews to 256 colours, oxipng losslessly recompresses them and the thumbnail."
+run = [
+  "bun x pngquant --speed 1 --strip --force --ext .png ToveruxModTemplate/Properties/Preview_*.png",
+  "oxipng -o max --strip safe ToveruxModTemplate/Properties/*.png"
+]
