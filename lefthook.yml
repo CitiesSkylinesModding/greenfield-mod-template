@@ -32,6 +32,9 @@ pre-push:
     - name: test:ui
       glob: "*.{ts,tsx,scss}"
       run: mise test:ui
+    - name: test:scripts
+      glob: "scripts/**"
+      run: mise test:scripts
     # The project files and the embedded locale JSON change what the C# tests see too.
     - name: test:cs
       glob: "*.{cs,csproj,props,targets,json}"

@@ -163,8 +163,8 @@ run = 'bun --bun typed-scss-modules "ToveruxModTemplate/UI/src/**/*.module.scss"
 # ==========
 
 [tasks."test"]
-description = "Runs the full test suite: the off-engine C# tests and the UI tests."
-depends = ["test:cs", "test:ui"]
+description = "Runs the full test suite: the off-engine C# tests, the UI tests, and the scripts' tests. The in-game scenarios run apart, with `mise test:game`."
+depends = ["test:cs", "test:ui", "test:scripts"]
 
 [tasks."test:cs"]
 description = "Runs the off-engine C# tests on .NET 10 with xUnit. Skips the UI build, the mod post-processor, and the deploy step (none are needed by the tests)."
@@ -175,6 +175,24 @@ run = "dotnet test --project ToveruxModTemplate.Tests -p:SkipBuildUI=true -p:Ski
 description = "Runs the UI tests with Bun, against the real game UI bundle (see bunfig.toml)."
 raw = true
 run = "bun test ToveruxModTemplate/UI"
+
+[tasks."test:scripts"]
+description = "Runs the tests of the agent and tooling scripts (scripts/) with Bun."
+raw = true
+run = "bun test scripts"
+
+[tasks."test:game"]
+description = "Runs the in-game test scenarios in the game, unattended, and reports their results. Requires the game closed and a Debug build deployed (`mise build`). `--keep-open` leaves the game running afterwards; every other argument is a game option."
+raw = true
+run = "bun scripts/test-game.ts"
+
+# GAME TASKS
+# ==========
+
+[tasks."game"]
+description = "Drives the game: `mise game restart [--load <save> | --new [<map>]] [<game options>]`, `mise game stop`, `mise game wait-load`. See scripts/game.ts."
+raw = true
+run = "bun scripts/game.ts"
 
 # PUBLISH TASKS
 # =============

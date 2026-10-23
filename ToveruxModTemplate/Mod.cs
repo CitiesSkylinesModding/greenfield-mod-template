@@ -9,6 +9,7 @@ using ToveruxModTemplate.Systems;
 using ToveruxModTemplate.Utils;
 #if DEBUG
 using ToveruxModTemplate.Reflection;
+using ToveruxModTemplate.Scenarios;
 #endif
 
 namespace ToveruxModTemplate;
@@ -82,6 +83,11 @@ public sealed class Mod : IMod {
       updateSystem.UpdateAt<CommonUISystem>(SystemUpdatePhase.UIUpdate);
       updateSystem.UpdateAt<EntityCounterSystem>(SystemUpdatePhase.ModificationEnd);
       updateSystem.UpdateAt<EntityCounterUISystem>(SystemUpdatePhase.UIUpdate);
+
+      #if DEBUG
+      // Make the in-game test scenarios available to the game's test framework.
+      ScenarioRegistry.Register();
+      #endif
 
       Mod.Log.Verbose($"{nameof(Mod)}: {nameof(this.OnLoad)} complete.");
     }

@@ -128,7 +128,7 @@ internal sealed partial class EntityCounterSystem : GameSystemBase {
     this.Date = this.timeSystem.GetCurrentDateTime();
   }
 
-  private EntityQuery GetQuery(Settings.EntityKind kind) => kind switch {
+  internal EntityQuery GetQuery(Settings.EntityKind kind) => kind switch {
     Settings.EntityKind.Buildings => this.buildingsQuery,
     Settings.EntityKind.Citizens => this.citizensQuery,
     Settings.EntityKind.Vehicles => this.vehiclesQuery,

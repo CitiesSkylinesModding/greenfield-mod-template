@@ -45,6 +45,9 @@
     <Reference Include="Colossal.Localization">
       <Private>false</Private>
     </Reference>
+    <Reference Include="Colossal.TestFramework">
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Unity.InputSystem">
       <Private>false</Private>
     </Reference>
@@ -75,6 +78,12 @@
     <Reference Update="System.Data">
       <Private>false</Private>
     </Reference>
+  </ItemGroup>
+
+  <!-- The in-game test scenarios are Debug-only: a Release build, the one players get, carries
+       none. -->
+  <ItemGroup Condition="'$(Configuration)' != 'Debug'">
+    <Compile Remove="Scenarios\**" />
   </ItemGroup>
 
   <ItemGroup>
