@@ -159,6 +159,23 @@ run = "bun ToveruxModTemplate/UI/build.ts"
 description = "Generates the gitignored *.module.scss.d.ts so tsc catches stale styles.* references."
 run = 'bun --bun typed-scss-modules "ToveruxModTemplate/UI/src/**/*.module.scss" --exportType named --nameFormat camel'
 
+# TEST TASKS
+# ==========
+
+[tasks."test"]
+description = "Runs the full test suite: the off-engine C# tests and the UI tests."
+depends = ["test:cs", "test:ui"]
+
+[tasks."test:cs"]
+description = "Runs the off-engine C# tests on .NET 10 with xUnit. Skips the UI build, the mod post-processor, and the deploy step (none are needed by the tests)."
+raw = true
+run = "dotnet test --project ToveruxModTemplate.Tests -p:SkipBuildUI=true -p:SkipModPostProcess=true"
+
+[tasks."test:ui"]
+description = "Runs the UI tests with Bun, against the real game UI bundle (see bunfig.toml)."
+raw = true
+run = "bun test ToveruxModTemplate/UI"
+
 # PUBLISH TASKS
 # =============
 

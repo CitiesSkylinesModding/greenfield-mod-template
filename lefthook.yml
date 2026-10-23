@@ -24,3 +24,15 @@ pre-commit:
           - name: oxfmt
             glob: "*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc,md,toml,yml,yaml}"
             run: mise exec bun -- bun --bun oxfmt --check --no-error-on-unmatched-pattern {staged_files}
+
+# Tests run on push, not commit, to keep commits fast.
+pre-push:
+  parallel: true
+  jobs:
+    - name: test:ui
+      glob: "*.{ts,tsx,scss}"
+      run: mise test:ui
+    # The project files and the embedded locale JSON change what the C# tests see too.
+    - name: test:cs
+      glob: "*.{cs,csproj,props,targets,json}"
+      run: mise test:cs

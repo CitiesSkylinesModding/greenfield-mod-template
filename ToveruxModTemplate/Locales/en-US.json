@@ -1,0 +1,10 @@
+{
+  "ToveruxModTemplate.Common.BASE_ERROR": "ToveruxModTemplate has encountered an unexpected error. Please report the problem to the mod author.",
+  "ToveruxModTemplate.Common.RECOVERABLE_ERROR": "The error is recoverable and you should be able to ignore and continue to play.",
+  "ToveruxModTemplate.Common.FATAL_ERROR": "The error is fatal and can have unintended side effects, recommend to save and restart the game and disable the mod if this repeats.",
+  "Options.SECTION[ToveruxModTemplate.ToveruxModTemplate.Mod]": "ToveruxModTemplate",
+  "Options.GROUP[ToveruxModTemplate.ToveruxModTemplate.Mod.Advanced]": "Advanced Settings",
+  "Options.OPTION[ToveruxModTemplate.ToveruxModTemplate.Mod.Settings.ResetSettings]": "Reset Settings",
+  "Options.OPTION_DESCRIPTION[ToveruxModTemplate.ToveruxModTemplate.Mod.Settings.ResetSettings]": "Reset all mod settings to their default values.",
+  "Options.WARNING[ToveruxModTemplate.ToveruxModTemplate.Mod.Settings.ResetSettings]": "Reset all mod settings to their default values?"
+}

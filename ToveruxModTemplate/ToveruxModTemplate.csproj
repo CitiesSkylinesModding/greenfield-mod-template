@@ -39,6 +39,9 @@
     <Reference Include="Colossal.UI.Binding">
       <Private>false</Private>
     </Reference>
+    <Reference Include="cohtml.Net">
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Colossal.Localization">
       <Private>false</Private>
     </Reference>
@@ -76,6 +79,11 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ToveruxModTemplate.Tests" />
+  </ItemGroup>
+
+  <!-- Loaded by Utils/LocaleLoader.cs, by resource name: ToveruxModTemplate.Locales.<locale>.json. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Locales\*.json" />
   </ItemGroup>
 
   <ItemGroup>
