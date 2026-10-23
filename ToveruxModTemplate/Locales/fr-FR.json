@@ -1,7 +1,7 @@
 {
   "ToveruxModTemplate.Common.BASE_ERROR": "ToveruxModTemplate a rencontré une erreur inattendue. Veuillez signaler le problème à l’auteur du mod.",
   "ToveruxModTemplate.Common.RECOVERABLE_ERROR": "L’erreur n’est pas fatale et vous devriez pouvoir continuer votre session de jeu sans problème.",
-  "ToveruxModTemplate.Common.FATAL_ERROR": "Cette erreur est fatale et peut avoir des effets indésirables : nous vous recommandons de sauvegarder votre partie, de redémarrer le jeu et de désactiver le mod si le problème se répète.",
+  "ToveruxModTemplate.Common.FATAL_ERROR": "L’erreur est fatale et peut avoir des effets indésirables : sauvegardez votre ville, redémarrez le jeu et désactivez le mod si le problème se reproduit.",
   "Options.SECTION[ToveruxModTemplate.ToveruxModTemplate.Mod]": "ToveruxModTemplate",
   "Options.GROUP[ToveruxModTemplate.ToveruxModTemplate.Mod.EntityCounter]": "Compteur d’entités",
   "Options.OPTION[ToveruxModTemplate.ToveruxModTemplate.Mod.Settings.CountedEntity]": "Entités comptées",

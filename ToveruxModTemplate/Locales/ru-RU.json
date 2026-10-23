@@ -1,7 +1,7 @@
 {
   "ToveruxModTemplate.Common.BASE_ERROR": "ToveruxModTemplate столкнулся с непредвиденной ошибкой. Пожалуйста, сообщите о проблеме автору мода.",
   "ToveruxModTemplate.Common.RECOVERABLE_ERROR": "Ошибка не критическая, вы можете её проигнорировать и продолжить игру.",
-  "ToveruxModTemplate.Common.FATAL_ERROR": "Ошибка фатальная и может привести к непредвиденным последствиям, рекомендуем сохраниться и перезапустить игру, а также отключить мод, если это повторится.",
+  "ToveruxModTemplate.Common.FATAL_ERROR": "Ошибка фатальная и может привести к непредвиденным последствиям: сохраните город, перезапустите игру и отключите мод, если это повторится.",
   "Options.SECTION[ToveruxModTemplate.ToveruxModTemplate.Mod]": "ToveruxModTemplate",
   "Options.GROUP[ToveruxModTemplate.ToveruxModTemplate.Mod.EntityCounter]": "Счётчик объектов",
   "Options.OPTION[ToveruxModTemplate.ToveruxModTemplate.Mod.Settings.CountedEntity]": "Подсчитываемые объекты",

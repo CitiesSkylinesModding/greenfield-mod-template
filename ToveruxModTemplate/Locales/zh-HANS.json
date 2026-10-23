@@ -1,7 +1,7 @@
 {
   "ToveruxModTemplate.Common.BASE_ERROR": "ToveruxModTemplate 模组发生了预料之外的错误，请向模组作者报告问题。",
   "ToveruxModTemplate.Common.RECOVERABLE_ERROR": "此错误可以恢复，您可以忽略它并继续游戏。",
-  "ToveruxModTemplate.Common.FATAL_ERROR": "此错误是致命的，可能会造成无法预料的副作用，建议保存并重启游戏，如果重复出现此错误，请禁用此模组。",
+  "ToveruxModTemplate.Common.FATAL_ERROR": "此错误是致命的，可能会造成无法预料的副作用：请保存您的城市、重启游戏，并在此错误再次出现时禁用此模组。",
   "Options.SECTION[ToveruxModTemplate.ToveruxModTemplate.Mod]": "ToveruxModTemplate",
   "Options.GROUP[ToveruxModTemplate.ToveruxModTemplate.Mod.EntityCounter]": "实体计数器",
   "Options.OPTION[ToveruxModTemplate.ToveruxModTemplate.Mod.Settings.CountedEntity]": "计数对象",

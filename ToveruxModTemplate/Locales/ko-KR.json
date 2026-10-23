@@ -1,7 +1,7 @@
 {
   "ToveruxModTemplate.Common.BASE_ERROR": "ToveruxModTemplate에 예기치 못한 오류가 발생했습니다. 모드 제작자에게 문제를 알려주세요.",
   "ToveruxModTemplate.Common.RECOVERABLE_ERROR": "이 오류는 복구될 수 있습니다. 무시하시고 계속 플레이하셔도 됩니다.",
-  "ToveruxModTemplate.Common.FATAL_ERROR": "이 오류는 치명적이며 예기치 않은 부작용을 초래할 수 있습니다. 게임을 저장하고 재시작하시기를 권합니다. 이 오류가 반복되면 이 모드를 비활성화하세요.",
+  "ToveruxModTemplate.Common.FATAL_ERROR": "이 오류는 치명적이며 의도치 않은 부작용을 초래할 수 있으니 다음과 같이 조치하세요: 도시를 저장하고 게임을 재시작한 뒤, 이 오류가 다시 발생하면 이 모드를 비활성화하세요.",
   "Options.SECTION[ToveruxModTemplate.ToveruxModTemplate.Mod]": "ToveruxModTemplate",
   "Options.GROUP[ToveruxModTemplate.ToveruxModTemplate.Mod.EntityCounter]": "엔티티 카운터",
   "Options.OPTION[ToveruxModTemplate.ToveruxModTemplate.Mod.Settings.CountedEntity]": "집계 대상",

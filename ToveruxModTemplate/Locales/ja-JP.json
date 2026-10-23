@@ -1,7 +1,7 @@
 {
   "ToveruxModTemplate.Common.BASE_ERROR": "ToveruxModTemplateで予期しないエラーが発生しました。MOD作者に問題を報告してください。",
   "ToveruxModTemplate.Common.RECOVERABLE_ERROR": "このエラーは回復可能です。無視してそのままプレイを続けられます。",
-  "ToveruxModTemplate.Common.FATAL_ERROR": "このエラーは致命的で、予期しない影響が出るおそれがあります。セーブしてゲームを再起動することをおすすめします。繰り返し発生する場合はMODを無効にしてください。",
+  "ToveruxModTemplate.Common.FATAL_ERROR": "このエラーは致命的で、予期しない影響が出るおそれがあります。都市をセーブしてゲームを再起動し、再発した場合はMODを無効にしてください。",
   "Options.SECTION[ToveruxModTemplate.ToveruxModTemplate.Mod]": "ToveruxModTemplate",
   "Options.GROUP[ToveruxModTemplate.ToveruxModTemplate.Mod.EntityCounter]": "エンティティカウンター",
   "Options.OPTION[ToveruxModTemplate.ToveruxModTemplate.Mod.Settings.CountedEntity]": "カウント対象",

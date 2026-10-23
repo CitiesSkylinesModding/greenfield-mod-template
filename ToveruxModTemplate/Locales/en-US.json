@@ -1,7 +1,7 @@
 {
   "ToveruxModTemplate.Common.BASE_ERROR": "ToveruxModTemplate has encountered an unexpected error. Please report the problem to the mod author.",
   "ToveruxModTemplate.Common.RECOVERABLE_ERROR": "The error is recoverable and you should be able to ignore and continue to play.",
-  "ToveruxModTemplate.Common.FATAL_ERROR": "The error is fatal and can have unintended side effects, recommend to save and restart the game and disable the mod if this repeats.",
+  "ToveruxModTemplate.Common.FATAL_ERROR": "The error is fatal and can have unintended side effects: save your city, restart the game, and disable the mod if this happens again.",
   "Options.SECTION[ToveruxModTemplate.ToveruxModTemplate.Mod]": "ToveruxModTemplate",
   "Options.GROUP[ToveruxModTemplate.ToveruxModTemplate.Mod.EntityCounter]": "Entity Counter",
   "Options.OPTION[ToveruxModTemplate.ToveruxModTemplate.Mod.Settings.CountedEntity]": "Counted Entities",
