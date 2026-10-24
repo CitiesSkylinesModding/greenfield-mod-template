@@ -8,11 +8,13 @@
       <Path>.editorconfig</Path>
       <Path>.gitattributes</Path>
       <Path>.gitignore</Path>
+      <Path>AGENTS.md</Path>
       <Path>Directory.Build.props</Path>
       <Path>Directory.Build.targets</Path>
       <Path>LICENSE</Path>
       <Path>README.md</Path>
       <Path>ToveruxModTemplate.slnx.DotSettings</Path>
+      <Path>bunfig.toml</Path>
       <Path>docs</Path>
       <Path>lefthook.yml</Path>
       <Path>mise.toml</Path>
