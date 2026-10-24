@@ -7,11 +7,12 @@ The manifest is the contract between the template and every mod made from it: a 
 ## Changing what a mod inherits
 
 - **A part grows or shrinks.** Declare every file, mise task, package and locale key of an optional part in its manifest entry, and every line elsewhere that names it as an edit: AGENTS.md, the skills, `mise.toml`, `lefthook.yml`, the csproj, the shared C# and TypeScript. Add the names it leaves nowhere once pruned to its `traces`.
-- **A new optional part.** Give it a manifest entry with the `flag` `--no-<id>`, the switch init derives from its ID, and a line in the mod README that `modReadme` writes when it is kept.
+- **A new optional part.** Give it a manifest entry with the `flag` `--no-<id>`, the switch init derives from its ID, a line in the mod README that `modReadme` writes when it is kept, and a screen in the wizard's [`interview.md`](../.claude/skills/tmt-setup/interview.md) step 8.
 - **Text a part's edit targets changes.** Each edit's `find` matches exactly once or init fails and writes nothing, so `mise test:template` names the declaration to update. A text two parts both edit takes one edit per combination of the two, each gated by `when`.
 - **A name the mod takes.** Write it with a placeholder (`ToveruxModTemplate`, `toveruxModTemplate`, the `tmt-` prefix), so the rename reaches it. A name in any other case needs a placeholder of its own in `manifest.ts` and `init.ts`.
 - **Neutral beats declared.** Where a shared file only needs an example (a test fixture, a filter in a skill, a counterexample in a rule), pick one every variant keeps rather than declaring an edit for it.
 - **Template-only material.** Anything that exists only to build or maintain the template goes under `template/` or in `templateOnly`.
+- **The setup wizard.** Its `SKILL.md` survives init until the first run ends, so it names no optional part but through a declared edit or a branch on `.template.json`'s `parts`; its `interview.md`, which init deletes, may name them all.
 - **The licence.** The template's own `LICENSE` is template-only; the setup wizard writes the mod's.
 - **`.template.json`.** The update skill reads it from mods made long ago: add fields, keep the existing ones meaning what they meant.
 

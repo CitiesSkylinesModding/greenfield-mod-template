@@ -143,6 +143,13 @@ const TRANSLATE_SKILL = '.claude/skills/tmt-translate/SKILL.md';
 
 const UI_TESTING_SKILL = '.claude/skills/tmt-ui-testing/SKILL.md';
 
+const WIZARD_SKILL_MD = `${WIZARD_SKILL}/SKILL.md`;
+
+/**
+ * The wizard's steps before init, which the mod never runs again.
+ */
+const WIZARD_INTERVIEW = `${WIZARD_SKILL}/interview.md`;
+
 /**
  * Removes a whole line, its newline included.
  */
@@ -579,6 +586,11 @@ const linuxSetup: Part = {
     { file: AGENTS_MD, find: line('- `mise setup:linux`:'), replace: '' },
     { file: GAME_UPDATE_SKILL, find: line('- On Linux, `mise setup:linux`'), replace: '' },
     {
+      file: WIZARD_SKILL_MD,
+      find: line('  - On Linux, where that installer cannot run, offer `mise setup:linux`'),
+      replace: ''
+    },
+    {
       file: 'scripts/environment.ts',
       find: '`correctly (on Linux, \\`mise setup:linux\\`).`',
       replace: '`correctly.`'
@@ -813,10 +825,11 @@ export const pruneFlags: readonly string[] = parts.flatMap(part => part.flag.spl
  * present; AGENTS.md's maintenance section is replaced by init itself.
  */
 export const templateOnly: Removal = {
-  files: ['template', 'LICENSE'],
+  files: ['template', 'LICENSE', WIZARD_INTERVIEW],
   tasks: ['init', 'test:template', 'template:self-test'],
   packages: [],
   edits: [
+    { file: WIZARD_SKILL_MD, find: line('Otherwise, read [`interview.md`]'), replace: '' },
     { file: MISE_TOML, find: ', "test:template"', replace: '' },
     {
       file: LEFTHOOK_YML,
@@ -835,7 +848,8 @@ export const templateOnly: Removal = {
     'test:template',
     'tmt-template-update',
     'template/init',
-    'template/manifest'
+    'template/manifest',
+    'interview.md'
   ]
 };
 

@@ -719,8 +719,8 @@ function writeTemplateOrigin(tree: Map<string, string | Uint8Array>): void {
     `\n` +
     `This mod was made from [toverux-mod-template](${TEMPLATE_REPOSITORY}).\n` +
     `\`.template.json\` records the template commit it was made from, the parts it kept, the ` +
-    `template names it replaced, and where its skills and rules live; the template's update skill ` +
-    `reads it.\n` +
+    `template names it replaced, and where its skills and rules live; the update skill, run ` +
+    `from a clone of the template, reads it.\n` +
     `A part this mod lacks may exist in its initial commit, \`initialCommit\` there, the template ` +
     `unmodified: \`git ls-tree -r --name-only <initialCommit>\` lists its files and ` +
     `\`git show <initialCommit>:<path>\` reads one, under the template names \`names\` maps to ` +
@@ -1017,7 +1017,7 @@ export function modReadme(options: InitOptions, kept: ReadonlySet<PartId>): stri
     '',
     '- [mise](https://mise.jdx.dev), then `mise install` for the pinned bun and .NET SDK.',
     toolchain,
-    '- `bun install`, then `lefthook install` for the git hooks.',
+    '- `bun install`, then `bunx lefthook install` for the git hooks.',
     '',
     '### Commands',
     '',
@@ -1034,7 +1034,7 @@ export function modReadme(options: InitOptions, kept: ReadonlySet<PartId>): stri
     '<!-- setup-note:start -->',
     '',
     '> [!NOTE]',
-    `> If you ran \`mise init\` by hand rather than through the setup wizard: delete \`${wizard}/\`, add a \`LICENSE\`, ${kept.has('jb') ? '' : 'run `mise fix:cs`, '}and run \`lefthook install\` before committing the mod, then delete this note.`,
+    `> If you ran \`mise init\` by hand rather than through the setup wizard: delete \`${wizard}/\`, add a \`LICENSE\`, ${kept.has('jb') ? '' : 'run `mise fix:cs`, '}and run \`bunx lefthook install\` before committing the mod, then delete this note.`,
     '',
     '<!-- setup-note:end -->',
     ''

@@ -107,6 +107,7 @@ describe('init, everything kept', () => {
 
   test('keeps the wizard, deletes the template-only material', () => {
     expect(existsSync(path.join(mod.root, '.claude/skills/cp-setup/SKILL.md'))).toBe(true);
+    expect(existsSync(path.join(mod.root, '.claude/skills/cp-setup/interview.md'))).toBe(false);
     expect(existsSync(path.join(mod.root, 'template'))).toBe(false);
     expect(existsSync(path.join(mod.root, 'LICENSE'))).toBe(false);
     expect(mod.files.filter(file => file.includes('template-update'))).toEqual([]);
@@ -150,7 +151,7 @@ describe('init, everything kept', () => {
     expect(readme).toStartWith('# City Pulse\n\nShows how a city is doing at a glance.\n');
     expect(readme).toContain('`mise test:game`');
     expect(readme).toContain('delete `.claude/skills/cp-setup/`');
-    expect(readme).toContain('`lefthook install`');
+    expect(readme).toContain('`bunx lefthook install`');
   });
 
   test('replaces the maintenance section with the template origin', async () => {

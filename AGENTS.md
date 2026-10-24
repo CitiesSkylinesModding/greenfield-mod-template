@@ -45,7 +45,7 @@ TypeScript, one root `tsconfig.json` covering `ToveruxModTemplate/UI` and `scrip
 - `ToveruxModTemplate/UI/cs2-types`: the game's own `cs2/*` type declarations, copied as they are. Copy them again after a game update, never edit them by hand.
 - `ToveruxModTemplate.Tests`: the off-engine C# tests, with the native-call shim (`Shim`) and the float64 pass (`Float64`).
 - `scripts`: bun scripts behind mise tasks (game launcher, in-game test runner, Crowdin, Linux toolchain setup), their tests colocated.
-- `docs/agents`: `dependency-updates.md`, the packages a sweep left behind and why.
+- `docs/agents`: `dependency-updates.md`, the packages a sweep left behind and why; `cantrips-loop.md`, where the cantrips skills keep their specs and tickets.
 
 ## Commands
 

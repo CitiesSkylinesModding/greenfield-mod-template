@@ -7,9 +7,7 @@
 // template/self-test.ts both work on such copies, never on the template itself.
 
 import { existsSync } from 'node:fs';
-import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
-import { UPDATE_SKILL, WIZARD_SKILL } from './manifest';
 
 export const templateRoot = path.join(import.meta.dir, '..');
 
@@ -47,17 +45,6 @@ export async function copyTemplate(
 
   for (const file of files) {
     await Bun.write(path.join(destination, file), Bun.file(path.join(templateRoot, file)));
-  }
-
-  // A checkout lacking the wizard or the update skill gets stand-ins, so the copy always has both.
-  for (const skill of [WIZARD_SKILL, UPDATE_SKILL]) {
-    const file = path.join(destination, skill, 'SKILL.md');
-
-    if (!existsSync(file)) {
-      await mkdir(path.dirname(file), { recursive: true });
-
-      await Bun.write(file, `---\nname: ${path.basename(skill)}\ndescription: Stand-in.\n---\n`);
-    }
   }
 
   if (!(options.hasGit ?? true)) {
