@@ -3,6 +3,7 @@
     "oxfmt.config.ts",
     "oxlint.config.ts",
     "scripts/**/*",
+    "template/**/*",
     "ToveruxModTemplate/UI/build.ts",
     "ToveruxModTemplate/UI/src/**/*",
     "ToveruxModTemplate/UI/cs2-types"

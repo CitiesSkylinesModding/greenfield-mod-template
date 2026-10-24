@@ -9,7 +9,7 @@ Class names follow a BEM-derived convention written in SCSS and consumed as came
 
 ## Naming
 
-- One block per concept. A module's root block is named for its role, not for the feature or panel it belongs to: per-file scoping removes the need for a global prefix (`footer`, `cityInfo`, `uploadProgress`, not `entityCounterPanelFooter`).
+- One block per concept. A module's root block is named for its role, not for the feature or panel it belongs to: per-file scoping removes the need for a global prefix (`footer`, `cityInfo`, `uploadProgress`, not `statsPanelFooter`).
 - A segment that spans multiple words is camelCase: `cityInfo`, `itemImage`, `backgroundColor`.
 - Block to element uses a single hyphen: `footer-button`, `cityInfo-name`.
 - A modifier uses a double hyphen: `footer-button--cancel`, `form-field--checked`, `image--hidden`.

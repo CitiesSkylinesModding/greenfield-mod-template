@@ -22,7 +22,7 @@ It runs two passes, float32 then float64 (see Floats), and skips the UI build, t
 For a focused run, append a filter to one pass, which mise hands to `dotnet test`:
 
 ```
-mise test:cs:float32 --filter-class '*EntityCounterSystemTests'
+mise test:cs:float32 --filter-class '*ModLogTests'
 mise test:cs:float64 --filter-method '*ReadBack*'
 ```
 

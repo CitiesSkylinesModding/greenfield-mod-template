@@ -171,7 +171,7 @@ run = 'bun --bun typed-scss-modules "ToveruxModTemplate/UI/src/**/*.module.scss"
 
 [tasks."test"]
 description = "Runs the full test suite: the off-engine C# tests, the UI tests, and the scripts' tests. The in-game scenarios run apart, with `mise test:game`."
-depends = ["test:cs", "test:ui", "test:scripts"]
+depends = ["test:cs", "test:ui", "test:scripts", "test:template"]
 
 [tasks."test:cs"]
 description = "Runs the off-engine C# tests on .NET 10 with xUnit, in two passes: float32, then float64."
@@ -207,6 +207,11 @@ run = "bun test ToveruxModTemplate/UI"
 description = "Runs the tests of the agent and tooling scripts (scripts/) with Bun."
 raw = true
 run = "bun test scripts"
+
+[tasks."test:template"]
+description = "Runs the tests of the template's init script (template/) with Bun, on temporary copies of the template."
+raw = true
+run = "bun test template"
 
 [tasks."test:game"]
 description = "Runs the in-game test scenarios in the game, unattended, and reports their results. Requires the game closed and a Debug build deployed (`mise build`). `--keep-open` leaves the game running afterwards; every other argument is a game option."
@@ -263,3 +268,16 @@ run = [
   "bun x pngquant --speed 1 --strip --force --ext .png ToveruxModTemplate/Properties/Preview_*.png",
   "oxipng -o max --strip safe ToveruxModTemplate/Properties/*.png"
 ]
+
+# TEMPLATE TASKS
+# ==============
+
+[tasks."init"]
+description = "Turns the template into a named mod: renames it, prunes the parts declined, records where it came from, and deletes the template-only material. `mise init -- --help` lists the flags (mise reads a bare `--help` itself)."
+raw = true
+run = "bun template/init.ts"
+
+[tasks."template:self-test"]
+description = "Runs init on an everything-kept and an everything-pruned copy of the template, then builds, checks and tests each. Run it before a template release and after declaring a part."
+raw = true
+run = "bun template/self-test.ts"

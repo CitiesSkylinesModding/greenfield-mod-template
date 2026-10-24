@@ -22,6 +22,7 @@
       <Path>oxlint.config.ts</Path>
       <Path>package.json</Path>
       <Path>scripts</Path>
+      <Path>template</Path>
       <Path>tsconfig.json</Path>
     </explicitIncludes>
     <explicitExcludes />

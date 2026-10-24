@@ -37,7 +37,7 @@ TypeScript, one root `tsconfig.json` covering `ToveruxModTemplate/UI` and `scrip
   - `Systems`: ECS systems, the UI systems among them, which own the C# side of the bindings.
   - `Logging`: the mod-owned logging seam (`IModLog` + `ModLog`, reached through `Mod.Log`), testable off-engine.
   - `Reflection`: accessors reaching into private game internals by reflection.
-  - `Utils`: helpers and extensions (localization, input bindings), plus `Writers/`, the outbound C# to cohtml binding writers.
+  - `Utils`: helpers and extensions (localization, input bindings), with `Writers/` for the outbound C# to cohtml binding writers.
   - `Scenarios`: the in-game test scenarios, compiled in Debug only.
   - `Locales`: one JSON per game locale, `en-US.json` the source.
   - `Properties`: the Paradox Mods publish configuration, its profiles and images; `ChangeLog.md` and `LongDescription.md` beside the csproj are the sources the build copies into it.
