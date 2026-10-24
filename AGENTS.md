@@ -144,4 +144,5 @@ Ask first before:
 
 This repository is the mod template itself, and `mise init` strips this section from every mod made from it.
 Before changing anything a mod inherits (a file, a task, a part the wizard can prune, a README rationale), read `template/MAINTAINING.md`.
+Where an option trades the modder's or the player's experience against effort or scope, take the one with the better experience.
 <!-- template-maintenance:end -->
