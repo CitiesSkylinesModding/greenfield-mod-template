@@ -1,4 +1,4 @@
-# Greenfield Mod Template — by [@toverux](https://github.com/toverux)
+# 🌱 Greenfield Mod Template — by [@toverux](https://github.com/toverux)
 
 A starter for Cities: Skylines II mods, with its C# half and React UI half, built so that a coding agent can develop and test a mod end to end.
 
@@ -8,6 +8,10 @@ It works on Windows and Linux alike: build, deploy, UI build, git hooks, and eve
 
 It is opinionated: it runs on [mise](https://mise.jdx.dev) and [bun](https://bun.sh), and it picks one way of doing each thing.
 The official template is barebone (as it should be). This one adds the tooling, tests, and infrastructure that a good and robust mod deserves.
+
+The setup wizard, from a copy of the template to a committed mod, in two minutes:
+
+https://github.com/user-attachments/assets/94ce3af0-f23e-4fea-bf89-7c48d2f9f20c
 
 **Contents**
 
