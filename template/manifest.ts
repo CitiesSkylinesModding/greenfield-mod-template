@@ -13,16 +13,22 @@ export const placeholders = {
   /**
    * The PascalCase mod ID: folders, projects, namespace, locale keys.
    */
-  id: 'ToveruxModTemplate',
+  id: 'Greenfield',
   /**
    * The camelCase ID: the binding groups.
    */
-  camelId: 'toveruxModTemplate',
+  camelId: 'greenfield',
   /**
    * The short prefix: the CSS class prefix and the skill names.
    */
-  prefix: 'tmt'
+  prefix: 'gfd'
 } as const;
+
+/**
+ * What follows a placeholder in the template's own name and repository slug, which name the
+ * template in a mod and so keep it: `Greenfield Mod Template`, `greenfield-mod-template`.
+ */
+export const TEMPLATE_NAME_TAIL = ' Mod Template|-mod-template';
 
 /**
  * Where the template keeps the skills and rules, which init moves to the mod's agent directory.
@@ -32,17 +38,18 @@ export const AGENT_DIRECTORY = '.claude';
 /**
  * The setup wizard skill: it survives init, and deletes itself after the first run.
  */
-export const WIZARD_SKILL = '.claude/skills/tmt-setup';
+export const WIZARD_SKILL = '.claude/skills/gfd-setup';
 
 /**
  * The update skill, which brings template changes into a mod from the template repository alone.
  */
-export const UPDATE_SKILL = '.claude/skills/tmt-template-update';
+export const UPDATE_SKILL = '.claude/skills/gfd-template-update';
 
 /**
  * Where the template is published, recorded in `.template.json` for the update skill.
  */
-export const TEMPLATE_REPOSITORY = 'https://github.com/CitiesSkylinesModding/toverux-mod-template';
+export const TEMPLATE_REPOSITORY =
+  'https://github.com/CitiesSkylinesModding/greenfield-mod-template';
 
 export type PartId =
   | 'sample-slice'
@@ -121,27 +128,27 @@ const MISE_TOML = 'mise.toml';
 
 const LEFTHOOK_YML = 'lefthook.yml';
 
-const CSPROJ = 'ToveruxModTemplate/ToveruxModTemplate.csproj';
+const CSPROJ = 'Greenfield/Greenfield.csproj';
 
-const TESTS_CSPROJ = 'ToveruxModTemplate.Tests/ToveruxModTemplate.Tests.csproj';
+const TESTS_CSPROJ = 'Greenfield.Tests/Greenfield.Tests.csproj';
 
 const EDITORCONFIG = '.editorconfig';
 
-const INDEX_LAYOUT = '.idea/.idea.ToveruxModTemplate/.idea/indexLayout.xml';
+const INDEX_LAYOUT = '.idea/.idea.Greenfield/.idea/indexLayout.xml';
 
-const OFF_ENGINE_SKILL = '.claude/skills/tmt-cs-offengine-testing/SKILL.md';
+const OFF_ENGINE_SKILL = '.claude/skills/gfd-cs-offengine-testing/SKILL.md';
 
-const GAME_CYCLE_SKILL = '.claude/skills/tmt-game-cycle/SKILL.md';
+const GAME_CYCLE_SKILL = '.claude/skills/gfd-game-cycle/SKILL.md';
 
-const GAME_TESTING_SKILL = '.claude/skills/tmt-game-testing/SKILL.md';
+const GAME_TESTING_SKILL = '.claude/skills/gfd-game-testing/SKILL.md';
 
-const GAME_UPDATE_SKILL = '.claude/skills/tmt-game-update/SKILL.md';
+const GAME_UPDATE_SKILL = '.claude/skills/gfd-game-update/SKILL.md';
 
-const RELEASE_SKILL = '.claude/skills/tmt-release/SKILL.md';
+const RELEASE_SKILL = '.claude/skills/gfd-release/SKILL.md';
 
-const TRANSLATE_SKILL = '.claude/skills/tmt-translate/SKILL.md';
+const TRANSLATE_SKILL = '.claude/skills/gfd-translate/SKILL.md';
 
-const UI_TESTING_SKILL = '.claude/skills/tmt-ui-testing/SKILL.md';
+const UI_TESTING_SKILL = '.claude/skills/gfd-ui-testing/SKILL.md';
 
 const WIZARD_SKILL_MD = `${WIZARD_SKILL}/SKILL.md`;
 
@@ -166,30 +173,30 @@ const sampleSlice: Part = {
   flag: '--no-sample-slice',
   title: 'Sample slice (the entity counter)',
   files: [
-    'ToveruxModTemplate/Systems/EntityCounterSystem.cs',
-    'ToveruxModTemplate/Systems/EntityCounterUISystem.cs',
-    'ToveruxModTemplate/Utils/Writers/EntityCountValueWriter.cs',
-    'ToveruxModTemplate/Scenarios/EntityCounterScenario.cs',
-    'ToveruxModTemplate.Tests/Systems/EntityCounterSystemTests.cs',
-    'ToveruxModTemplate.Tests/Utils/Writers/EntityCountValueWriterTests.cs',
-    'ToveruxModTemplate/UI/src/entity-counter',
-    'ToveruxModTemplate/UI/src/utils/bindings/entity-counter.ts'
+    'Greenfield/Systems/EntityCounterSystem.cs',
+    'Greenfield/Systems/EntityCounterUISystem.cs',
+    'Greenfield/Utils/Writers/EntityCountValueWriter.cs',
+    'Greenfield/Scenarios/EntityCounterScenario.cs',
+    'Greenfield.Tests/Systems/EntityCounterSystemTests.cs',
+    'Greenfield.Tests/Utils/Writers/EntityCountValueWriterTests.cs',
+    'Greenfield/UI/src/entity-counter',
+    'Greenfield/UI/src/utils/bindings/entity-counter.ts'
   ],
   tasks: [],
   packages: [],
   localeKeys: /EntityCounter|ENTITYKIND|CountedEntity|INPUT_MAP/u,
   edits: [
     {
-      file: 'ToveruxModTemplate/Mod.cs',
+      file: 'Greenfield/Mod.cs',
       find:
         '      updateSystem.UpdateAt<EntityCounterSystem>(SystemUpdatePhase.ModificationEnd);\n' +
         '      updateSystem.UpdateAt<EntityCounterUISystem>(SystemUpdatePhase.UIUpdate);\n',
       replace: ''
     },
-    { file: 'ToveruxModTemplate/Settings.cs', find: 'using System;\n', replace: '' },
-    { file: 'ToveruxModTemplate/Settings.cs', find: 'using Game.Input;\n', replace: '' },
+    { file: 'Greenfield/Settings.cs', find: 'using System;\n', replace: '' },
+    { file: 'Greenfield/Settings.cs', find: 'using Game.Input;\n', replace: '' },
     {
-      file: 'ToveruxModTemplate/Settings.cs',
+      file: 'Greenfield/Settings.cs',
       find:
         '[SettingsUIGroupOrder(Settings.GroupEntityCounter, Settings.GroupAdvanced)]\n' +
         '[SettingsUIShowGroupName(Settings.GroupEntityCounter, Settings.GroupAdvanced)]\n' +
@@ -203,17 +210,17 @@ const sampleSlice: Part = {
         '[SettingsUIShowGroupName(Settings.GroupAdvanced)]\n'
     },
     {
-      file: 'ToveruxModTemplate/Settings.cs',
+      file: 'Greenfield/Settings.cs',
       find: '  private const string GroupEntityCounter = "EntityCounter";\n\n',
       replace: ''
     },
     {
-      file: 'ToveruxModTemplate/Settings.cs',
+      file: 'Greenfield/Settings.cs',
       find: / {2}\/\/\/ <summary>\n {2}\/\/\/ What the entity counter panel counts\.[\s\S]*?KeyBindingToggleEntityCounter \{ get; set; \}\n\n/u,
       replace: ''
     },
     {
-      file: 'ToveruxModTemplate/Settings.cs',
+      file: 'Greenfield/Settings.cs',
       find: '  public override void SetDefaults() => this.CountedEntity = EntityKind.Buildings;\n',
       replace:
         '  public override void SetDefaults() {\n' +
@@ -221,24 +228,24 @@ const sampleSlice: Part = {
         '  }\n'
     },
     {
-      file: 'ToveruxModTemplate/Settings.cs',
+      file: 'Greenfield/Settings.cs',
       find: /\n\n {4}writer\.PropertyName\("countedEntity"\);[\s\S]*?\n {4}\);\n\n/u,
       replace: '\n'
     },
     {
-      file: 'ToveruxModTemplate/Settings.cs',
+      file: 'Greenfield/Settings.cs',
       find: /\n\n {2}\/\/\/ <summary>\n {2}\/\/\/ The entities the entity counter counts[\s\S]*?\n {2}\}\n/u,
       replace: '\n'
     },
     {
-      file: 'ToveruxModTemplate/UI/src/utils/bindings/common.ts',
+      file: 'Greenfield/UI/src/utils/bindings/common.ts',
       find:
         'export interface ModSettings {\n' +
         '  readonly countedEntity: CountedEntity;\n' +
         '}\n' +
         '\n' +
         '/**\n' +
-        ' * Serialization of C# `ToveruxModTemplate.Settings.CountedEntity`, camelCase.\n' +
+        ' * Serialization of C# `Greenfield.Settings.CountedEntity`, camelCase.\n' +
         ' */\n' +
         "export type CountedEntity = 'buildings' | 'citizens' | 'vehicles';\n" +
         '\n' +
@@ -252,17 +259,17 @@ const sampleSlice: Part = {
         "const settings$ = lazyBindValue<ModSettings>(GROUP, 'settings', {});\n"
     },
     {
-      file: 'ToveruxModTemplate/UI/src/utils/bindings/index.ts',
+      file: 'Greenfield/UI/src/utils/bindings/index.ts',
       find: "export * from './entity-counter';\n",
       replace: ''
     },
     {
-      file: 'ToveruxModTemplate/UI/src/index.tsx',
+      file: 'Greenfield/UI/src/index.tsx',
       find: "import { register as registerEntityCounter } from './entity-counter';\n",
       replace: ''
     },
     {
-      file: 'ToveruxModTemplate/UI/src/index.tsx',
+      file: 'Greenfield/UI/src/index.tsx',
       find: 'const registrars: readonly ModRegistrar[] = [registerEntityCounter];',
       replace: 'const registrars: readonly ModRegistrar[] = [];'
     },
@@ -274,13 +281,13 @@ const sampleSlice: Part = {
     {
       file: OFF_ENGINE_SKILL,
       find:
-        ', as [`EntityCounterSystem.CountChunkEntities`](../../../ToveruxModTemplate/Systems/EntityCounterSystem.cs) ' +
-        'and its [tests](../../../ToveruxModTemplate.Tests/Systems/EntityCounterSystemTests.cs) do.',
+        ', as [`EntityCounterSystem.CountChunkEntities`](../../../Greenfield/Systems/EntityCounterSystem.cs) ' +
+        'and its [tests](../../../Greenfield.Tests/Systems/EntityCounterSystemTests.cs) do.',
       replace: '.'
     },
     {
       file: UI_TESTING_SKILL,
-      find: ', as [`entity-counter.test.tsx`](../../../ToveruxModTemplate/UI/src/entity-counter/entity-counter.test.tsx) does.',
+      find: ', as [`entity-counter.test.tsx`](../../../Greenfield/UI/src/entity-counter/entity-counter.test.tsx) does.',
       replace: '.'
     },
     {
@@ -301,13 +308,13 @@ const sampleSlice: Part = {
     },
     {
       file: GAME_TESTING_SKILL,
-      find: 'Copy the shape of [`EntityCounterScenario`](../../../ToveruxModTemplate/Scenarios/EntityCounterScenario.cs):',
+      find: 'Copy the shape of [`EntityCounterScenario`](../../../Greenfield/Scenarios/EntityCounterScenario.cs):',
       replace: 'A scenario takes this shape:'
     },
     {
       file: GAME_TESTING_SKILL,
-      find: 'RunScenario("ToveruxModTemplate: Entity counter",',
-      replace: 'RunScenario("ToveruxModTemplate: <name>",'
+      find: 'RunScenario("Greenfield: Entity counter",',
+      replace: 'RunScenario("Greenfield: <name>",'
     }
   ],
   traces: [/entity.?count/iu, /counted.?entit/iu, /entity.?kind/iu, 'mods menu button']
@@ -319,10 +326,10 @@ const uiTests: Part = {
   title: 'UI tests',
   files: [
     'bunfig.toml',
-    'ToveruxModTemplate/UI/src/testing',
-    'ToveruxModTemplate/UI/src/components/tooltip.test.tsx',
-    'ToveruxModTemplate/UI/src/entity-counter/entity-counter.test.tsx',
-    '.claude/skills/tmt-ui-testing'
+    'Greenfield/UI/src/testing',
+    'Greenfield/UI/src/components/tooltip.test.tsx',
+    'Greenfield/UI/src/entity-counter/entity-counter.test.tsx',
+    '.claude/skills/gfd-ui-testing'
   ],
   tasks: ['test:ui'],
   packages: [
@@ -382,7 +389,7 @@ const uiTests: Part = {
     'game-setup',
     'happy-dom',
     'testing-library',
-    'tmt-ui-testing',
+    'gfd-ui-testing',
     'UI test',
     'UI harness',
     'bunfig'
@@ -394,12 +401,12 @@ const gameTests: Part = {
   flag: '--no-game-tests',
   title: 'In-game test scenarios',
   files: [
-    'ToveruxModTemplate/Scenarios',
+    'Greenfield/Scenarios',
     'scripts/test-game.ts',
     'scripts/scenario-log.ts',
     'scripts/scenario-log.test.ts',
     'scripts/fixtures',
-    '.claude/skills/tmt-game-testing'
+    '.claude/skills/gfd-game-testing'
   ],
   tasks: ['test:game'],
   packages: [],
@@ -415,12 +422,12 @@ const gameTests: Part = {
       replace: ''
     },
     {
-      file: 'ToveruxModTemplate/Mod.cs',
-      find: 'using ToveruxModTemplate.Scenarios;\n',
+      file: 'Greenfield/Mod.cs',
+      find: 'using Greenfield.Scenarios;\n',
       replace: ''
     },
     {
-      file: 'ToveruxModTemplate/Mod.cs',
+      file: 'Greenfield/Mod.cs',
       find:
         '      #if DEBUG\n' +
         "      // Make the in-game test scenarios available to the game's test framework.\n" +
@@ -429,7 +436,7 @@ const gameTests: Part = {
       replace: ''
     },
     {
-      file: 'ToveruxModTemplate/Systems/EntityCounterSystem.cs',
+      file: 'Greenfield/Systems/EntityCounterSystem.cs',
       find: '  internal EntityQuery GetQuery(',
       replace: '  private EntityQuery GetQuery('
     },
@@ -462,12 +469,12 @@ const gameTests: Part = {
     { file: GAME_CYCLE_SKILL, find: line('- `Logs/TestScenarios.log`'), replace: '' },
     {
       file: OFF_ENGINE_SKILL,
-      find: 'is an in-game scenario: the `tmt-game-testing` skill.',
-      replace: 'is checked in the running game: the `tmt-game-cycle` skill.'
+      find: 'is an in-game scenario: the `gfd-game-testing` skill.',
+      replace: 'is checked in the running game: the `gfd-game-cycle` skill.'
     },
     { file: OFF_ENGINE_SKILL, find: line("- Where a check's expected values"), replace: '' },
     {
-      file: '.claude/skills/tmt-cs-offengine-testing/runtime-differences.md',
+      file: '.claude/skills/gfd-cs-offengine-testing/runtime-differences.md',
       find: ', through the unity eval or a scenario.',
       replace: ', through the unity eval.'
     },
@@ -476,7 +483,7 @@ const gameTests: Part = {
   traces: [
     'test:game',
     'TestFramework',
-    'tmt-game-testing',
+    'gfd-game-testing',
     'ScenarioRegistry',
     'scenario-log',
     'test-game',
@@ -604,7 +611,7 @@ const float64: Part = {
   flag: '--no-float64',
   title: 'float64 test pass',
   files: [
-    'ToveruxModTemplate.Tests/Float64',
+    'Greenfield.Tests/Float64',
     'scripts/check-float64-output.ts',
     'scripts/check-float64-output.test.ts'
   ],
@@ -623,7 +630,7 @@ const float64: Part = {
         '[tasks."test:cs"]\n' +
         'description = "Runs the off-engine C# tests on .NET 10 with xUnit. Skips the UI build, the mod post-processor, and the deploy step (none are needed by the tests)."\n' +
         'raw = true\n' +
-        'run = "dotnet test --project ToveruxModTemplate.Tests -p:SkipBuildUI=true -p:SkipModPostProcess=true"\n'
+        'run = "dotnet test --project Greenfield.Tests -p:SkipBuildUI=true -p:SkipModPostProcess=true"\n'
     },
     {
       file: AGENTS_MD,
@@ -685,7 +692,7 @@ const jb: Part = {
   edits: [
     { file: INDEX_LAYOUT, find: '      <Path>.config</Path>\n', replace: '' },
     {
-      file: '.idea/.idea.ToveruxModTemplate/.idea/jsonSchemas.xml',
+      file: '.idea/.idea.Greenfield/.idea/jsonSchemas.xml',
       find: / {8}<entry key="dotnet-tools\.json">[\s\S]*?<\/entry>\n/u,
       replace: ''
     },
@@ -703,8 +710,8 @@ const jb: Part = {
         'description = "Verifies the C# formatting with dotnet format (read-only, `mise fix:cs` writes). The build itself gates the :warning IDE rules."\n' +
         'raw = true\n' +
         'run = [\n' +
-        '  "dotnet format style ToveruxModTemplate.slnx --verify-no-changes",\n' +
-        '  "dotnet format whitespace ToveruxModTemplate.slnx --verify-no-changes"\n' +
+        '  "dotnet format style Greenfield.slnx --verify-no-changes",\n' +
+        '  "dotnet format whitespace Greenfield.slnx --verify-no-changes"\n' +
         ']\n' +
         '\n'
     },
@@ -718,8 +725,8 @@ const jb: Part = {
         '# Style first: its fixes leave formatting the whitespace pass then settles, so one combined run\n' +
         '# is not idempotent.\n' +
         'run = [\n' +
-        '  "dotnet format style ToveruxModTemplate.slnx",\n' +
-        '  "dotnet format whitespace ToveruxModTemplate.slnx"\n' +
+        '  "dotnet format style Greenfield.slnx",\n' +
+        '  "dotnet format whitespace Greenfield.slnx"\n' +
         ']\n'
     },
     {
@@ -846,7 +853,7 @@ export const templateOnly: Removal = {
     'template-maintenance',
     'template:self-test',
     'test:template',
-    'tmt-template-update',
+    'gfd-template-update',
     'template/init',
     'template/manifest',
     'interview.md'

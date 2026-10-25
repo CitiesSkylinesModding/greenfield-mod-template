@@ -4,9 +4,9 @@
     "oxlint.config.ts",
     "scripts/**/*",
     "template/**/*",
-    "ToveruxModTemplate/UI/build.ts",
-    "ToveruxModTemplate/UI/src/**/*",
-    "ToveruxModTemplate/UI/cs2-types"
+    "Greenfield/UI/build.ts",
+    "Greenfield/UI/src/**/*",
+    "Greenfield/UI/cs2-types"
   ],
   "compilerOptions": {
     "target": "ESNext",

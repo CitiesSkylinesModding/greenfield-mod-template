@@ -35,11 +35,10 @@ import {
   type ScenarioResult
 } from './scenario-log';
 
-const MOD_NAME = 'ToveruxModTemplate';
+const MOD_NAME = 'Greenfield';
 
 /**
- * `ScenarioRegistry.ScenarioCategory` (1 << 20), in
- * ToveruxModTemplate/Scenarios/ScenarioRegistry.cs.
+ * `ScenarioRegistry.ScenarioCategory` (1 << 20), in Greenfield/Scenarios/ScenarioRegistry.cs.
  */
 const SCENARIO_CATEGORY = 1_048_576;
 

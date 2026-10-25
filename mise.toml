@@ -36,14 +36,14 @@ depends = ["dev:bundle", "dev:css-types"]
 
 [tasks."dev:bundle"]
 description = "Watches and rebuilds the UI bundle."
-run = "bun ToveruxModTemplate/UI/build.ts --watch"
+run = "bun Greenfield/UI/build.ts --watch"
 
 [tasks."dev:css-types"]
 description = "Watches and regenerates the CSS module type definitions."
 # `build:css-types` does the full initial generation once; `--ignoreInitial` then makes this
 # watcher skip its redundant startup pass and only react to later file additions/changes.
 depends = ["build:css-types"]
-run = 'bun --bun typed-scss-modules "ToveruxModTemplate/UI/src/**/*.module.scss" --exportType named --nameFormat camel --ignoreInitial --watch'
+run = 'bun --bun typed-scss-modules "Greenfield/UI/src/**/*.module.scss" --exportType named --nameFormat camel --ignoreInitial --watch'
 
 # CHECK TASKS
 # ===========
@@ -77,7 +77,7 @@ run = "bun --bun oxlint --deny-warnings"
 
 # No check:cs: jb cleanupcode (the C# formatter, see fix:cs) has no read-only/dry-run mode, so there
 # is no read-only C# verify. Run `mise fix:cs` and commit; Rider formats live with the same engine,
-# the same ToveruxModTemplate.slnx.DotSettings profile, and the same root .editorconfig.
+# the same Greenfield.slnx.DotSettings profile, and the same root .editorconfig.
 # The build itself gates the :warning IDE rules (EnforceCodeStyleInBuild, see
 # Directory.Build.props).
 
@@ -135,7 +135,7 @@ raw = true
 # idempotent and a no-op once the tool is installed.
 run = [
   "dotnet tool restore",
-  'dotnet jb cleanupcode ToveruxModTemplate.slnx --profile="AutoCleanup" --settings="ToveruxModTemplate.slnx.DotSettings" --properties:SkipBuildUI=true --properties:SkipModPostProcess=true --properties:EnforceCodeStyleInBuild=false --exclude="**/obj/**;**/bin/**;**/Mod.props;**/Mod.targets"'
+  'dotnet jb cleanupcode Greenfield.slnx --profile="AutoCleanup" --settings="Greenfield.slnx.DotSettings" --properties:SkipBuildUI=true --properties:SkipModPostProcess=true --properties:EnforceCodeStyleInBuild=false --exclude="**/obj/**;**/bin/**;**/Mod.props;**/Mod.targets"'
 ]
 
 # SETUP TASKS
@@ -152,19 +152,19 @@ run = "bash scripts/setup-linux-toolchain.sh"
 [tasks."build"]
 description = "Builds and deploys the whole mod: the C# assembly, the post-processor, and the UI (the csproj calls `build:ui` itself). Requires the game to be closed, which holds the deployed assembly open."
 raw = true
-run = "dotnet build ToveruxModTemplate.slnx"
+run = "dotnet build Greenfield.slnx"
 
 [tasks."build:ui"]
 description = "Builds the UI alone: the bundle and the (gitignored) CSS module type definitions. Deploys straight to the game's Mods folder, so it is the task to run while iterating with the game open."
 depends = ["build:css-types", "build:bundle"]
 
 [tasks."build:bundle"]
-description = "Builds the UI bundle with Bun (`ToveruxModTemplate/UI/build.ts`). Does not type-check: `mise check` does."
-run = "bun ToveruxModTemplate/UI/build.ts"
+description = "Builds the UI bundle with Bun (`Greenfield/UI/build.ts`). Does not type-check: `mise check` does."
+run = "bun Greenfield/UI/build.ts"
 
 [tasks."build:css-types"]
 description = "Generates the gitignored *.module.scss.d.ts so tsc catches stale styles.* references."
-run = 'bun --bun typed-scss-modules "ToveruxModTemplate/UI/src/**/*.module.scss" --exportType named --nameFormat camel'
+run = 'bun --bun typed-scss-modules "Greenfield/UI/src/**/*.module.scss" --exportType named --nameFormat camel'
 
 # TEST TASKS
 # ==========
@@ -181,17 +181,17 @@ run = ["mise test:cs:float32", "mise test:cs:float64"]
 [tasks."test:cs:float32"]
 description = "Runs the off-engine C# tests with floats in single precision, as CoreCLR and Burst compute them: the pass `dotnet test` and the IDE run. Skips the UI build, the mod post-processor, and the deploy step (none are needed by the tests)."
 raw = true
-run = "dotnet test --project ToveruxModTemplate.Tests -p:SkipBuildUI=true -p:SkipModPostProcess=true"
+run = "dotnet test --project Greenfield.Tests -p:SkipBuildUI=true -p:SkipModPostProcess=true"
 
 [tasks."test:cs:float64"]
-description = "Runs the off-engine C# tests with floats in double precision, as the game's Mono computes them outside Burst (ToveruxModTemplate.Tests/Float64/), then checks that no widened assembly left the tests' output."
+description = "Runs the off-engine C# tests with floats in double precision, as the game's Mono computes them outside Burst (Greenfield.Tests/Float64/), then checks that no widened assembly left the tests' output."
 # The first run after a clean or a game update widens the game's assemblies, about 10 s; the next
 # ones add under a second to the float32 pass's time.
 # The check runs after, as a task of its own: mise hands the task's arguments (a test filter) to the
 # last command of a `run` list.
 depends_post = ["test:cs:float64:check"]
 raw = true
-run = "dotnet test --project ToveruxModTemplate.Tests -p:SkipBuildUI=true -p:SkipModPostProcess=true -p:FloatMode=Float64"
+run = "dotnet test --project Greenfield.Tests -p:SkipBuildUI=true -p:SkipModPostProcess=true -p:FloatMode=Float64"
 
 [tasks."test:cs:float64:check"]
 description = "Checks that no widened assembly left the float64 tests' output (`test:cs:float64` runs it after the tests): none in the repository outside it, the game's folder or the Mods folder."
@@ -201,7 +201,7 @@ run = "bun scripts/check-float64-output.ts"
 [tasks."test:ui"]
 description = "Runs the UI tests with Bun, against the real game UI bundle (see bunfig.toml)."
 raw = true
-run = "bun test ToveruxModTemplate/UI"
+run = "bun test Greenfield/UI"
 
 [tasks."test:scripts"]
 description = "Runs the tests of the agent and tooling scripts (scripts/) with Bun."
@@ -232,13 +232,13 @@ run = "bun scripts/game.ts"
 [tasks."publish"]
 description = "Builds the mod in Release and publishes it as a new version on Paradox Mods."
 raw = true
-run = "dotnet publish ToveruxModTemplate/ToveruxModTemplate.csproj -p:PublishProfile=PublishNewVersion"
+run = "dotnet publish Greenfield/Greenfield.csproj -p:PublishProfile=PublishNewVersion"
 
 [tasks."publish:page"]
 description = "Updates the Paradox Mods page from PublishConfiguration.xml (description, tags, thumbnail and screenshots) without shipping a version."
 depends = ["images:optimize"]
 raw = true
-run = "dotnet publish ToveruxModTemplate/ToveruxModTemplate.csproj -p:PublishProfile=UpdatePublishedConfiguration"
+run = "dotnet publish Greenfield/Greenfield.csproj -p:PublishProfile=UpdatePublishedConfiguration"
 
 # LOCALIZATION TASKS
 # ==================
@@ -256,17 +256,17 @@ run = "bun scripts/crowdin-push-translations.ts"
 # ASSET TASKS
 # ===========
 
-# Every image PublishConfiguration.xml uploads to Paradox Mods sits in ToveruxModTemplate/Properties.
+# Every image PublishConfiguration.xml uploads to Paradox Mods sits in Greenfield/Properties.
 # Paradox Mods serves the previews byte for byte, so pngquant cuts them to a 256-colour palette,
 # indistinguishable at full size. The thumbnail stays lossless: Paradox re-encodes it to JPEG
 # anyway. oxipng then recompresses every image without touching a pixel. Rerunning changes no pixel.
 # On Windows, cmd passes the globs through unexpanded: both tools expand them themselves (oxipng's
 # source, pngquant-bin's Rust build run under Wine).
 [tasks."images:optimize"]
-description = "Shrinks the Paradox Mods images in ToveruxModTemplate/Properties: pngquant cuts the previews to 256 colours, oxipng losslessly recompresses them and the thumbnail."
+description = "Shrinks the Paradox Mods images in Greenfield/Properties: pngquant cuts the previews to 256 colours, oxipng losslessly recompresses them and the thumbnail."
 run = [
-  "bun x pngquant --speed 1 --strip --force --ext .png ToveruxModTemplate/Properties/Preview_*.png",
-  "oxipng -o max --strip safe ToveruxModTemplate/Properties/*.png"
+  "bun x pngquant --speed 1 --strip --force --ext .png Greenfield/Properties/Preview_*.png",
+  "oxipng -o max --strip safe Greenfield/Properties/*.png"
 ]
 
 # TEMPLATE TASKS

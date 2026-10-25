@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="UserContentModel">
+    <attachedFolders />
+    <explicitIncludes>
+      <Path>.claude</Path>
+      <Path>.config</Path>
+      <Path>.editorconfig</Path>
+      <Path>.gitattributes</Path>
+      <Path>.gitignore</Path>
+      <Path>AGENTS.md</Path>
+      <Path>Directory.Build.props</Path>
+      <Path>Directory.Build.targets</Path>
+      <Path>LICENSE</Path>
+      <Path>README.md</Path>
+      <Path>Greenfield.slnx.DotSettings</Path>
+      <Path>bunfig.toml</Path>
+      <Path>docs</Path>
+      <Path>lefthook.yml</Path>
+      <Path>mise.toml</Path>
+      <Path>oxfmt.config.ts</Path>
+      <Path>oxlint.config.ts</Path>
+      <Path>package.json</Path>
+      <Path>scripts</Path>
+      <Path>template</Path>
+      <Path>tsconfig.json</Path>
+    </explicitIncludes>
+    <explicitExcludes />
+  </component>
+</project>

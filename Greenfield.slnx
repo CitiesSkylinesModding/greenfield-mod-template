@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Greenfield/Greenfield.csproj" />
+  <Project Path="Greenfield.Tests/Greenfield.Tests.csproj" />
+</Solution>

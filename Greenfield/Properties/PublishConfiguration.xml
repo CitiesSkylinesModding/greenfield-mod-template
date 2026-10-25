@@ -1,0 +1,15 @@
+<Publish>
+  <ModId Value="" />
+  <DisplayName Value="Greenfield" />
+  <ShortDescription Value="This is a short description" />
+  <LongDescription># Greenfield
+
+This is a long description.</LongDescription>
+  <Thumbnail Value="Properties/Thumbnail.png" />
+  <Tag Value="Code Mod" />
+  <ForumLink Value="" />
+  <ModVersion Value="1.0.0" />
+  <GameVersion Value="1.6.*" />
+  <ChangeLog>- First release.</ChangeLog>
+  <AccessLevel Value="Public" />
+</Publish>

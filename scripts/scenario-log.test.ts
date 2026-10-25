@@ -34,7 +34,7 @@ describe('readScenarios', () => {
     const [scenario, ...others] = await scenariosOf('passed');
 
     expect(others).toEqual([]);
-    expect(scenario?.name).toBe('ToveruxModTemplate: Sample');
+    expect(scenario?.name).toBe('Greenfield: Sample');
     expect(scenario?.failures).toEqual([]);
     expect(scenario?.entries.at(-1)?.message).toStartWith('---| FINISH TEST SCENARIO (Success');
   });

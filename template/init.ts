@@ -24,6 +24,7 @@ import {
   type Removal,
   templateOnly,
   templateOnlyIfPresent,
+  TEMPLATE_NAME_TAIL,
   TEMPLATE_REPOSITORY,
   WIZARD_SKILL
 } from './manifest';
@@ -207,8 +208,6 @@ export async function initialize(root: string, options: InitOptions): Promise<In
 
   writeTemplateOrigin(tree);
 
-  writeModFields(tree, options);
-
   const modNames = { id: options.id, camelId: camelCase(options.id), prefix: options.prefix };
 
   const rename = renamer(modNames);
@@ -219,6 +218,8 @@ export async function initialize(root: string, options: InitOptions): Promise<In
       typeof content == 'string' ? rename(content) : content
     ])
   );
+
+  writeModFields(renamed, tree, options, rename);
 
   const moved = relocateAgentFiles(renamed, options.agentDirectory);
 
@@ -436,10 +437,10 @@ function readCommits(
   if (!head) {
     throw new InitError(
       `This repository has no commit to record. Init records the commit of the unmodified ` +
-        `template it starts from: commit the template as it is first (\`git init\`, \`git add -A\`, ` +
-        `\`git commit -m "chore: start from toverux-mod-template"\`), and pass the template commit ` +
-        `you started from as --template-commit (\`git ls-remote ${TEMPLATE_REPOSITORY} HEAD\` ` +
-        `gives the latest).`
+        `template it starts from: commit the template as it is first (\`git init\`, ` +
+        `\`git add -A\`, \`git commit -m "chore: start from Greenfield Mod Template"\`), and ` +
+        `pass the template commit you started from as --template-commit ` +
+        `(\`git ls-remote ${TEMPLATE_REPOSITORY} HEAD\` gives the latest).`
     );
   }
 
@@ -717,7 +718,7 @@ function writeTemplateOrigin(tree: Map<string, string | Uint8Array>): void {
   const section =
     `## Template origin\n` +
     `\n` +
-    `This mod was made from [toverux-mod-template](${TEMPLATE_REPOSITORY}).\n` +
+    `This mod was made from [Greenfield Mod Template](${TEMPLATE_REPOSITORY}).\n` +
     `\`.template.json\` records the template commit it was made from, the parts it kept, the ` +
     `template names it replaced, and where its skills and rules live; the update skill, run ` +
     `from a clone of the template, reads it.\n` +
@@ -739,8 +740,17 @@ function writeTemplateOrigin(tree: Map<string, string | Uint8Array>): void {
 /**
  * Resets the fields each mod sets for itself: version, publish configuration and its mod ID,
  * changelog, description, author, display name in the locales, Crowdin project.
+ *
+ * It writes into the renamed tree, so the user's text, which may hold a template name, never meets
+ * the rename; the locales are rebuilt from the `template` tree's, where the display name is still
+ * the placeholder.
  */
-function writeModFields(tree: Map<string, string | Uint8Array>, options: InitOptions): void {
+function writeModFields(
+  tree: Map<string, string | Uint8Array>,
+  template: ReadonlyMap<string, string | Uint8Array>,
+  options: InitOptions,
+  rename: (text: string) => string
+): void {
   // The replacements carry user text, whose `$` sequences a pattern replace would expand.
   const edit = (file: string, find: string | RegExp, replace: string): void => {
     updateText(tree, file, content =>
@@ -754,10 +764,10 @@ function writeModFields(tree: Map<string, string | Uint8Array>, options: InitOpt
 
   const version = options.versioning == 'calver' ? `${new Date().getFullYear()}.0.0` : '1.0.0';
 
-  const publish = `${placeholders.id}/Properties/PublishConfiguration.xml`;
+  const publish = rename(`${placeholders.id}/Properties/PublishConfiguration.xml`);
 
   edit(
-    `${placeholders.id}/${placeholders.id}.csproj`,
+    rename(`${placeholders.id}/${placeholders.id}.csproj`),
     /<Version>[^<]*<\/Version>/u,
     `<Version>${version}</Version>`
   );
@@ -790,28 +800,38 @@ function writeModFields(tree: Map<string, string | Uint8Array>, options: InitOpt
     }`
   );
 
-  tree.set(`${placeholders.id}/ChangeLog.md`, '- First release.\n');
+  tree.set(rename(`${placeholders.id}/ChangeLog.md`), '- First release.\n');
 
-  tree.set(`${placeholders.id}/LongDescription.md`, `${longDescription(options)}\n`);
+  tree.set(rename(`${placeholders.id}/LongDescription.md`), `${longDescription(options)}\n`);
 
   edit(
-    `${placeholders.id}/UI/mod.json`,
+    rename(`${placeholders.id}/UI/mod.json`),
     /"author": "[^"]*"/u,
     `"author": ${JSON.stringify(options.author)}`
   );
 
-  // The mod's name in the locale texts becomes its display name; a `ToveruxModTemplate.` stays an
-  // ID, as in a `{KEY=...}` reference, and the rename turns it into the mod's.
-  const nameInText = new RegExp(`${placeholders.id}(?!\\.)`, 'gu');
+  // The mod's name in the locale texts becomes its display name, and the rename reaches the text
+  // around it; a `Greenfield.` stays an ID, as in a `{KEY=...}` reference, which the rename turns
+  // into the mod's.
+  const nameInText = new RegExp(`${placeholders.id}(?!\\.|${TEMPLATE_NAME_TAIL})`, 'u');
 
-  updateLocales(tree, locale =>
-    Object.fromEntries(
-      Object.entries(locale).map(([key, text]) => [
-        key,
-        text.replaceAll(nameInText, () => options.name)
-      ])
-    )
-  );
+  const localePattern = new RegExp(`^${placeholders.id}/Locales/[^/]+\\.json$`, 'u');
+
+  for (const [file, content] of template) {
+    if (localePattern.test(file) && typeof content == 'string') {
+      const locale = JSON.parse(content) as Record<string, string>;
+
+      const named = Object.entries(locale).map(([key, text]) => [
+        rename(key),
+        text
+          .split(nameInText)
+          .map(part => rename(part))
+          .join(options.name)
+      ]);
+
+      tree.set(rename(file), `${JSON.stringify(Object.fromEntries(named), null, 2)}\n`);
+    }
+  }
 
   if (options.crowdinProjectId) {
     edit(
@@ -823,7 +843,7 @@ function writeModFields(tree: Map<string, string | Uint8Array>, options: InitOpt
 
   if (options.versioning == 'semver') {
     edit(
-      '.claude/skills/tmt-release/SKILL.md',
+      rename('.claude/skills/gfd-release/SKILL.md'),
       /`<year>\.<feature>\.<patch>`, read off the last tag:\n\n[\s\S]*?\n\n/u,
       '`<major>.<minor>.<patch>`, read off the last tag, never with a pre-release suffix: the game parses the version as a `System.Version`.\n' +
         '\n' +
@@ -861,8 +881,8 @@ function renamer(
   names: Readonly<Record<keyof typeof placeholders, string>>
 ): (text: string) => string {
   const replacements: ReadonlyArray<[RegExp, string]> = [
-    [new RegExp(placeholders.id, 'gu'), names.id],
-    [new RegExp(placeholders.camelId, 'gu'), names.camelId],
+    [new RegExp(`${placeholders.id}(?!${TEMPLATE_NAME_TAIL})`, 'gu'), names.id],
+    [new RegExp(`${placeholders.camelId}(?!${TEMPLATE_NAME_TAIL})`, 'gu'), names.camelId],
     [new RegExp(`\\b${placeholders.prefix}-`, 'gu'), `${names.prefix}-`]
   ];
 
@@ -1011,7 +1031,7 @@ export function modReadme(options: InitOptions, kept: ReadonlySet<PartId>): stri
     '',
     '## Development',
     '',
-    `This mod started from [toverux-mod-template](${TEMPLATE_REPOSITORY}), whose README explains its tooling and the reasons behind it.`,
+    `This mod started from [Greenfield Mod Template](${TEMPLATE_REPOSITORY}), whose README explains its tooling and the reasons behind it.`,
     '',
     '### Setup',
     '',

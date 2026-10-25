@@ -16,7 +16,15 @@ import {
   initialize,
   parseArguments
 } from './init';
-import { type Part, parts, placeholders, pruneFlags, type Removal, templateOnly } from './manifest';
+import {
+  type Part,
+  parts,
+  placeholders,
+  pruneFlags,
+  type Removal,
+  TEMPLATE_NAME_TAIL,
+  templateOnly
+} from './manifest';
 import { type CopyOptions, copyTemplate, run, templateRoot, testGit } from './template-copy';
 
 /**
@@ -92,7 +100,6 @@ describe('the CLI', () => {
 
 describe('derivePrefix and camelCase', () => {
   test.each([
-    ['ToveruxModTemplate', 'tmt', 'toveruxModTemplate'],
     ['HallOfFame', 'hof', 'hallOfFame'],
     ['UIThing', 'ut', 'uiThing'],
     ['Traffic', 'tra', 'traffic']
@@ -135,11 +142,11 @@ describe('init, everything kept', () => {
 
   test('writes .template.json', async () => {
     expect(JSON.parse(await text(mod.root, '.template.json'))).toEqual({
-      template: 'https://github.com/CitiesSkylinesModding/toverux-mod-template',
+      template: 'https://github.com/CitiesSkylinesModding/greenfield-mod-template',
       templateCommit: mod.report.templateCommit,
       initialCommit: mod.report.templateCommit,
       parts: Object.fromEntries(parts.map(part => [part.id, true])),
-      names: { ToveruxModTemplate: 'CityPulse', toveruxModTemplate: 'cityPulse', tmt: 'cp' },
+      names: { Greenfield: 'CityPulse', greenfield: 'cityPulse', gfd: 'cp' },
       skills: '.claude/skills',
       rules: '.claude/rules'
     });
@@ -159,6 +166,9 @@ describe('init, everything kept', () => {
 
     expect(agents).not.toContain('## Template maintenance');
     expect(agents).toContain('## Template origin');
+    expect(agents).toContain(
+      '[Greenfield Mod Template](https://github.com/CitiesSkylinesModding/greenfield-mod-template)'
+    );
     expect(agents).toContain('`git show <initialCommit>:<path>`');
   });
 
@@ -295,7 +305,7 @@ describe('init with user text that reads as a pattern', () => {
     '--description',
     "Earns $' and $$.",
     '--agent-dir',
-    'tmt-a$$b'
+    'gfd-a$$b'
   ]);
 
   test('writes them as they are', async () => {
@@ -309,8 +319,34 @@ describe('init with user text that reads as a pattern', () => {
     expect(publish).toContain('<DisplayName Value="Ca$$h $&amp; Co" />');
     expect(publish).toContain(`<ShortDescription Value="Earns $' and $$." />`);
     expect(locale['CityPulse.Common.BASE_ERROR']).toStartWith('Ca$$h $& Co has encountered');
-    expect(mod.files).toContain('tmt-a$$b/skills/cp-setup/SKILL.md');
-    expect(await text(mod.root, 'README.md')).toContain('delete `tmt-a$$b/skills/cp-setup/`');
+    expect(mod.files).toContain('gfd-a$$b/skills/cp-setup/SKILL.md');
+    expect(await text(mod.root, 'README.md')).toContain('delete `gfd-a$$b/skills/cp-setup/`');
+  });
+});
+
+describe(`init with user text holding the template's name`, () => {
+  const mod = initializedCopy([
+    '--name',
+    'Greenfield Roads',
+    '--description',
+    'Lays out a greenfield district.'
+  ]);
+
+  test('writes it as it is', async () => {
+    const publish = await text(mod.root, 'CityPulse/Properties/PublishConfiguration.xml');
+
+    const locale = JSON.parse(await text(mod.root, 'CityPulse/Locales/en-US.json')) as Record<
+      string,
+      string
+    >;
+
+    expect(publish).toContain('<DisplayName Value="Greenfield Roads" />');
+    expect(publish).toContain('<ShortDescription Value="Lays out a greenfield district." />');
+    expect(await text(mod.root, 'CityPulse/LongDescription.md')).toBe(
+      '# Greenfield Roads\n\nLays out a greenfield district.\n'
+    );
+    expect(locale['Options.SECTION[CityPulse.CityPulse.Mod]']).toBe('Greenfield Roads');
+    expect(locale['CityPulse.Common.BASE_ERROR']).toStartWith('Greenfield Roads has encountered');
   });
 });
 
@@ -348,7 +384,7 @@ describe('init on a published template', () => {
   test('resets the mod ID', async () => {
     const root = await temporaryCopy();
 
-    const publish = 'ToveruxModTemplate/Properties/PublishConfiguration.xml';
+    const publish = 'Greenfield/Properties/PublishConfiguration.xml';
 
     const configuration = await text(root, publish);
 
@@ -380,7 +416,7 @@ describe('init on a built checkout', () => {
   test('leaves nothing of a pruned folder', async () => {
     const root = await temporaryCopy();
 
-    const generated = 'ToveruxModTemplate/UI/src/entity-counter/entity-counter.module.scss.d.ts';
+    const generated = 'Greenfield/UI/src/entity-counter/entity-counter.module.scss.d.ts';
 
     await Bun.write(path.join(root, generated), 'export {};\n');
 
@@ -590,7 +626,10 @@ async function grep(mod: InitializedCopy, pattern: string | RegExp): Promise<str
 }
 
 async function findPlaceholders(mod: InitializedCopy): Promise<string[]> {
-  const pattern = new RegExp(`${placeholders.id}|\\b${placeholders.prefix}-`, 'iu');
+  const pattern = new RegExp(
+    `${placeholders.id}(?!${TEMPLATE_NAME_TAIL})|\\b${placeholders.prefix}-`,
+    'iu'
+  );
 
   return [...mod.files.filter(file => pattern.test(file)), ...(await grep(mod, pattern))];
 }

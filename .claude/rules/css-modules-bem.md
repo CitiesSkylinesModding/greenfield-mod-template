@@ -17,7 +17,7 @@ Class names follow a BEM-derived convention written in SCSS and consumed as came
 - Promote a nested structural unit to its own block rather than nesting elements: `checkbox`, `dropdown`, and `textarea` are blocks, not `form-...` elements.
 - In SCSS, build names with `&-` and `&--` concatenation, and keep the source nested for readability even though the generated names stay flat.
 
-Names convert to camelCase in TypeScript (the `localsConvention` of `ToveruxModTemplate/UI/build.ts`), so `.footer-button--cancel` becomes `styles.footerButtonCancel`.
+Names convert to camelCase in TypeScript (the `localsConvention` of `Greenfield/UI/build.ts`), so `.footer-button--cancel` becomes `styles.footerButtonCancel`.
 Always access them via `import * as styles from './x.module.scss'`.
 
 ## File layout
@@ -32,9 +32,9 @@ Always access them via `import * as styles from './x.module.scss'`.
 
 ## Generated class names
 
-- `ToveruxModTemplate/UI/build.ts` scopes each class as `tmt-[local]_[hash]` (e.g. `.cityInfo-name` becomes `tmt-cityInfo-name_aB3`). The `tmt-` prefix namespaces every mod class.
-- An agent or a test reaches a mod element by that stable part: `[class*="tmt-cityInfo-name_"]`, the hash left out.
-- Because of that prefix, prefix selectors that reach into vanilla game-UI internals, like `[class^="track"]` or `[class^="content"]`, never match our own classes: ours all start with `tmt-`. Use them to target the game's generated structure inside a vanilla component (scrollbar tracks, dropdown popups) without colliding with mod classes. A substring selector like `[class*="icon"]` gets no such protection: it also matches a mod class containing the word, such as `tmt-row-icon_aB3`.
+- `Greenfield/UI/build.ts` scopes each class as `gfd-[local]_[hash]` (e.g. `.cityInfo-name` becomes `gfd-cityInfo-name_aB3`). The `gfd-` prefix namespaces every mod class.
+- An agent or a test reaches a mod element by that stable part: `[class*="gfd-cityInfo-name_"]`, the hash left out.
+- Because of that prefix, prefix selectors that reach into vanilla game-UI internals, like `[class^="track"]` or `[class^="content"]`, never match our own classes: ours all start with `gfd-`. Use them to target the game's generated structure inside a vanilla component (scrollbar tracks, dropdown popups) without colliding with mod classes. A substring selector like `[class*="icon"]` gets no such protection: it also matches a mod class containing the word, such as `gfd-row-icon_aB3`.
 
 ## Typed CSS modules
 
