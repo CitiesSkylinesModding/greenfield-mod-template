@@ -28,7 +28,7 @@ Otherwise, read [`interview.md`](interview.md) now and run the steps from step 1
 The mod's `AGENTS.md` assumes three plugins of the `csmodding` marketplace: `cs2-modding` (how the game works and how mods change it), `coherent-gameface` (the game's UI engine, and the `game_*` tools driving it), and `unity-devtools` (the `unity` tools reaching into the running game).
 Check your own skills and tools for them.
 
-When one is missing, stop: give the user the install commands for the agent they run, and ask them to restart the session (Claude Code: `claude --continue` keeps this conversation), then go on.
+When one is missing, stop: give the user the install commands for the agent they run, then `/reload-plugins` (Codex: restart the session) and a look at `/mcp`, where the plugins' servers must show as connected, and go on.
 
 ```
 /plugin marketplace add CitiesSkylinesModding/agents-plugins
