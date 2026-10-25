@@ -117,26 +117,14 @@ When the game's debugger port (unity) or its UI debugging port (gameface) is una
 
 Never:
 
-- Create a git branch or commit work yourself unless the user expressly said so.
 - Commit secrets, tokens, `.env` files, dumps, credentials (`CROWDIN_PERSONAL_TOKEN` belongs in the environment or `mise.local.toml`).
 - Modify generated files unless the generation command was run.
 
 Ask first before:
 
-- Adding a dependency.
 - Changing the bindings wire format shared with the UI.
-- Performing destructive file or data operations.
 - Running `mise l10n:push --push`, in either mode. It writes to the shared Crowdin project: by default it approves translations, which stamps a proofreading verdict volunteer translators see and cannot easily undo, and `--no-approve` adds them unapproved, for volunteers to review. Preview first, and keep `--base` to the commits you wrote: a base reaching back across a pull commit pushes volunteers' translations as though they were yours.
 - Running `mise publish` or `mise publish:page`: both write to the live Paradox Mods page every player sees.
-
-## Preferred agent behavior
-
-- Start by inspecting existing patterns.
-- Prefer LSP over Grep/Glob/Read for code navigation.
-- Make the smallest safe change, but speak up when a refactor is overdue.
-- When uncertain, state the assumption and proceed conservatively.
-- Actively propose updates to `AGENTS.md`, comments, or other docs when you detect drift.
-- Where a spec contradicts a design iterated with the user in the running game, the design stands: annotate the spec with it, without asking.
 
 <!-- template-maintenance:start -->
 
