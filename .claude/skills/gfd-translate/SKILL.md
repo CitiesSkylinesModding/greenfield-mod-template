@@ -96,10 +96,8 @@ It holds until the game restarts; the locale file stays the source.
 
 ## 7. The push (Crowdin)
 
-Two modes, previewed from a tree holding only that mode's edits (`git stash push -u -- <the other mode's files>` around the preview, `-u` for a new locale file git does not track yet), the previews shown to the user, `--push` only on their explicit go-ahead:
-
-- Approved, `mise l10n:push --base <base>`, for a locale volunteers translate, and for fixes to volunteer strings: a pull brings back Crowdin's approved version over an unapproved one.
-- Unapproved and AI-flagged, `mise l10n:push --base <base> --no-approve`, for a locale no volunteer translates, so proofreaders still review it.
+Run `mise l10n:push --base <base>` and show its preview to the user; add `--push` only on their explicit go-ahead.
+It adds each translation unapproved and AI-flagged, so proofreaders see it as text to review and a volunteer's later suggestion wins the export.
+Where the string already holds an approved translation, a volunteer's or a reworded key's old one, it approves the edit instead, since the approved text wins the export and the next pull would revert the edit; the preview names each of those keys, `over approved #<id>`.
 
 The script diffs `--base` against the working tree: where step 2 made a pull commit, pass that commit as `--base` in place of `<base>`, since a base reaching back across a pull commit pushes volunteers' translations as though they were the agent's.
-Preview and push before the change is committed: the stash sets aside working-tree edits only, so past a commit both modes list every locale edited since `--base`.

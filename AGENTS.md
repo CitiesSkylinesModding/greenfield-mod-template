@@ -66,7 +66,7 @@ TypeScript, one root `tsconfig.json` covering `Greenfield/UI` and `scripts`:
 - `mise game`: Restart, load, stop and wait on the game (the `gfd-game-cycle` skill).
 - `mise setup:linux`: Install the modding toolchain on Linux, where the in-game installer cannot run. Idempotent, rerun it after a game update; the game must be closed.
 - `mise l10n:pull`: Preview Crowdin's current translations of the source keys added or changed since `--base`, or of every key with `--all`; `--write` puts them into the files. Needs `CROWDIN_PROJECT_ID` and `CROWDIN_PERSONAL_TOKEN`.
-- `mise l10n:push`: Preview which locale-file edits would be pushed to Crowdin, approved, or unapproved and flagged as AI-translated with `--no-approve`; `--push` writes them, which the Boundaries below gate. Needs `CROWDIN_PROJECT_ID` and `CROWDIN_PERSONAL_TOKEN`.
+- `mise l10n:push`: Preview which locale-file edits would be pushed to Crowdin; `--push` writes them, which the Boundaries below gate. Needs `CROWDIN_PROJECT_ID` and `CROWDIN_PERSONAL_TOKEN`.
 - `mise images:optimize`: Shrink the Paradox Mods images in `Greenfield/Properties`, previews quantized by pngquant, everything recompressed by oxipng. Rerunning changes no pixel.
 - `mise publish:page`: Push `PublishConfiguration.xml` to the Paradox Mods page (description, tags, thumbnail, screenshots) without shipping a version; runs `images:optimize` first.
 - `mise publish`: Build in Release and publish a new version on Paradox Mods.
@@ -123,7 +123,7 @@ Never:
 Ask first before:
 
 - Changing the bindings wire format shared with the UI.
-- Running `mise l10n:push --push`, in either mode. It writes to the shared Crowdin project: by default it approves translations, which stamps a proofreading verdict volunteer translators see and cannot easily undo, and `--no-approve` adds them unapproved, for volunteers to review. Preview first, and keep `--base` to the commits you wrote: a base reaching back across a pull commit pushes volunteers' translations as though they were yours.
+- Running `mise l10n:push --push`. It writes to the shared Crowdin project, and the approvals it adds stamp a proofreading verdict volunteer translators see and cannot easily undo. Preview first, and keep `--base` to the commits you wrote: a base reaching back across a pull commit pushes volunteers' translations as though they were yours.
 - Running `mise publish` or `mise publish:page`: both write to the live Paradox Mods page every player sees.
 
 <!-- template-maintenance:start -->

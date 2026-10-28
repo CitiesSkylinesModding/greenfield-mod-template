@@ -161,7 +161,7 @@ export async function readLocale(fileName: string): Promise<Record<string, strin
 // A file absent from the ref is a locale added since, whose every key then reads as changed. The
 // ref's tree listing proves the absence, where a failed read cannot: `cat-file -e` exits 128 for a
 // missing path and an unreadable object alike, and reading either as "no previous version" would
-// turn one unreadable file into an approval of the whole locale.
+// turn one unreadable file into a push of the whole locale.
 export async function readAtRef(base: string, fileName: string): Promise<Record<string, string>> {
   const path = `${LOCALES_DIRECTORY}/${fileName}`;
   const revision = `${base}:${path}`;
@@ -174,7 +174,7 @@ export async function readAtRef(base: string, fileName: string): Promise<Record<
 }
 
 // A range is valid to `git diff` but not to `git show <ref>:<path>`, which would make every
-// baseline read as an absent file, every key read as new, and the whole locale get approved.
+// baseline read as an absent file, every key read as new, and the whole locale get pushed.
 export async function resolveCommit(ref: string): Promise<string> {
   const resolved = await git(['rev-parse', '--verify', `${ref}^{commit}`]).catch(() => null);
 
