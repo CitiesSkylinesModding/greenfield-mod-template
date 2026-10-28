@@ -40,3 +40,4 @@ codex exec resume <uuid> -m <model> -c 'model_reasoning_effort="high"' - < <dir>
 - It proposes dashes: declined.
 - It reaches for keys outside the range: declined, out of scope.
 - Its findings on the longer strings are usually right; its label rewrites are usually longer than the room, which is the moderator's call.
+- A round 1 with no finding and no quoted comparison is a skim, not a verdict: resume with a few candidate points of your own and ask it to compare each pair.
