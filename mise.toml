@@ -3,6 +3,8 @@
 # Every task body is a single command or a bun script, with no POSIX shell syntax (line
 # continuations, pipes, variables): mise runs inline tasks through `cmd /c` on Windows.
 
+min_version = { soft = "2026.10.20" }
+
 [tools]
 bun = "1.4.4"
 dotnet = "10.0.402"
