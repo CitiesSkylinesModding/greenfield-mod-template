@@ -4,8 +4,8 @@ using Colossal.UI.Binding;
 using Game.Input;
 using Game.Modding;
 using Game.Settings;
-using JetBrains.Annotations;
 using Greenfield.Utils;
+using JetBrains.Annotations;
 
 namespace Greenfield;
 
