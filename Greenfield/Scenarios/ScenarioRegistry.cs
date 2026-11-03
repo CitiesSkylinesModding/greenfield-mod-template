@@ -9,8 +9,6 @@ namespace Greenfield.Scenarios;
 /// csproj compiles this folder in Debug alone).
 /// The game collects its scenarios before mods load, so the mod adds its own to the same
 /// dictionary.
-/// <c>scripts/test-game.ts</c> tells a Debug build by this class's name in the assembly: a rename
-/// renames the string there too.
 /// </summary>
 internal static class ScenarioRegistry {
   /// <summary>
@@ -19,7 +17,7 @@ internal static class ScenarioRegistry {
   /// lie in its <c>--categoryFilter=</c> option, which also takes a number: a bit no category of
   /// the game's uses leaves the game's scenarios and other mods' <see cref="Category.QA"/> ones out
   /// of the run.
-  /// <c>scripts/test-game.ts</c> passes the same number.
+  /// The cs2-dev <c>test</c> tool passes the same number unless given another <c>category</c>.
   /// </summary>
   internal const Category ScenarioCategory = (Category) (1 << 20);
 

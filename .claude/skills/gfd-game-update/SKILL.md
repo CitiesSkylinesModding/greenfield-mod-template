@@ -34,11 +34,12 @@ The game must be closed for the build steps.
 mise build
 mise check
 mise test
-mise test:game
 ```
+
+Then the in-game scenarios, through the `cs2-dev` `test` tool (the `gfd-game-testing` skill).
 
 The first `mise test:cs` after an update is slower: it widens the game's new assemblies for the float64 pass again.
 
 ## 5. One game cycle
 
-Run one cycle with the `gfd-game-cycle` skill: the mod loads from the local build, its UI renders where it did, its settings page opens, and its log holds no error.
+Run one cycle through the `cs2-dev` tools, `restart` with `mod` set to `Greenfield` and a new city: the mod loads from the local build, its UI renders where it did, its settings page opens, and its log holds no error.

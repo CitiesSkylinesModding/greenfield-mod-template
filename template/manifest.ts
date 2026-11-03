@@ -138,8 +138,6 @@ const INDEX_LAYOUT = '.idea/.idea.Greenfield/.idea/indexLayout.xml';
 
 const OFF_ENGINE_SKILL = '.claude/skills/gfd-cs-offengine-testing/SKILL.md';
 
-const GAME_CYCLE_SKILL = '.claude/skills/gfd-game-cycle/SKILL.md';
-
 const GAME_TESTING_SKILL = '.claude/skills/gfd-game-testing/SKILL.md';
 
 const GAME_UPDATE_SKILL = '.claude/skills/gfd-game-update/SKILL.md';
@@ -400,15 +398,8 @@ const gameTests: Part = {
   id: 'game-tests',
   flag: '--no-game-tests',
   title: 'In-game test scenarios',
-  files: [
-    'Greenfield/Scenarios',
-    'scripts/test-game.ts',
-    'scripts/scenario-log.ts',
-    'scripts/scenario-log.test.ts',
-    'scripts/fixtures',
-    '.claude/skills/gfd-game-testing'
-  ],
-  tasks: ['test:game'],
+  files: ['Greenfield/Scenarios', '.claude/skills/gfd-game-testing'],
+  tasks: [],
   packages: [],
   edits: [
     {
@@ -442,7 +433,7 @@ const gameTests: Part = {
     },
     {
       file: MISE_TOML,
-      find: ' The in-game scenarios run apart, with `mise test:game`.',
+      find: " The in-game scenarios run apart, through the `cs2-dev` MCP server's `test` tool.",
       replace: ''
     },
     {
@@ -451,8 +442,6 @@ const gameTests: Part = {
       replace: '.'
     },
     { file: AGENTS_MD, find: line('  - `Scenarios`:'), replace: '' },
-    { file: AGENTS_MD, find: line('- `mise test:game`:'), replace: '' },
-    { file: AGENTS_MD, find: /, in-game test runner(?=[),])/u, replace: '' },
     {
       file: AGENTS_MD,
       find: ' as an in-game scenario or a UI test.',
@@ -465,12 +454,10 @@ const gameTests: Part = {
       replace: ' as an off-engine test.',
       when: kept => !kept.has('ui-tests')
     },
-    { file: GAME_CYCLE_SKILL, find: ' (or `mise test:game`)', replace: '' },
-    { file: GAME_CYCLE_SKILL, find: line('- `Logs/TestScenarios.log`'), replace: '' },
     {
       file: OFF_ENGINE_SKILL,
       find: 'is an in-game scenario: the `gfd-game-testing` skill.',
-      replace: 'is checked in the running game: the `gfd-game-cycle` skill.'
+      replace: "is checked in the running game: the `cs2-modding` skill's game-cycle reference."
     },
     { file: OFF_ENGINE_SKILL, find: line("- Where a check's expected values"), replace: '' },
     {
@@ -478,15 +465,16 @@ const gameTests: Part = {
       find: ', through the unity eval or a scenario.',
       replace: ', through the unity eval.'
     },
-    { file: GAME_UPDATE_SKILL, find: /^mise test:game\n/mu, replace: '' }
+    {
+      file: GAME_UPDATE_SKILL,
+      find: 'Then the in-game scenarios, through the `cs2-dev` `test` tool (the `gfd-game-testing` skill).\n\n',
+      replace: ''
+    }
   ],
   traces: [
-    'test:game',
     'TestFramework',
     'gfd-game-testing',
     'ScenarioRegistry',
-    'scenario-log',
-    'test-game',
     'TestScenarios.log',
     /in-game (?:test )?scenario/iu
   ]
@@ -510,7 +498,6 @@ const crowdin: Part = {
       find: ' (ex. the CROWDIN_PERSONAL_TOKEN `mise l10n:push` needs)',
       replace: ''
     },
-    { file: AGENTS_MD, find: /, Crowdin(?=[),])/u, replace: '' },
     { file: AGENTS_MD, find: line('- `mise l10n:pull`:'), replace: '' },
     { file: AGENTS_MD, find: line('- `mise l10n:push`:'), replace: '' },
     { file: AGENTS_MD, find: line('- With Crowdin set up,'), replace: '' },
@@ -589,7 +576,6 @@ const linuxSetup: Part = {
   tasks: ['setup:linux'],
   packages: [],
   edits: [
-    { file: AGENTS_MD, find: /, Linux toolchain setup(?=[),])/u, replace: '' },
     { file: AGENTS_MD, find: line('- `mise setup:linux`:'), replace: '' },
     { file: GAME_UPDATE_SKILL, find: line('- On Linux, `mise setup:linux`'), replace: '' },
     {
@@ -613,7 +599,8 @@ const float64: Part = {
   files: [
     'Greenfield.Tests/Float64',
     'scripts/check-float64-output.ts',
-    'scripts/check-float64-output.test.ts'
+    'scripts/check-float64-output.test.ts',
+    'scripts/environment.ts'
   ],
   tasks: ['test:cs:float32', 'test:cs:float64', 'test:cs:float64:check'],
   packages: [],

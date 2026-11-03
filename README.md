@@ -30,7 +30,7 @@ https://github.com/user-attachments/assets/94ce3af0-f23e-4fea-bf89-7c48d2f9f20c
 - **Three test layers:** C# tests off-engine (on plain .NET, without the game), UI tests against the game's real UI bundle, and in-game scenarios run by the game's own test framework.
 - **All 12 game languages**, with an optional [Crowdin](https://crowdin.com) flow for volunteer translators.
 - **A release flow** with one version source, and a changelog that Paradox Mods and GitHub render the same way.
-- **An agent setup:** an `AGENTS.md`, code-style rules, and skills for testing, translating, releasing, running the game, and updating after a game patch. It relies on the [csmodding plugins](https://github.com/CitiesSkylinesModding/agents-plugins), installed separately, which let an agent see and drive the running game.
+- **An agent setup:** an `AGENTS.md`, code-style rules, and skills for testing, translating, releasing, and updating after a game patch. It relies on the [csmodding plugins](https://github.com/CitiesSkylinesModding/agents-plugins), installed separately, which let an agent see and drive the running game.
 - **A small sample feature** that shows how the pieces connect, with a list of its files for when you delete it.
 
 ## 🚀 Start a mod
@@ -176,7 +176,7 @@ Tests of pure logic run without the game.
 #### In-game scenarios
 
 Debug builds register scenarios with the game's own test framework.
-`mise test:game` launches the game unattended, runs them in a new city, and reports each one, on Linux and Windows. It needs a Debug build deployed and the game closed, and a run takes minutes.
+The `cs2-modding` plugin's `test` tool launches the game unattended, on Linux or Windows, and reports how each scenario went. A run takes minutes.
 
 ### Locales and platforms
 
@@ -198,7 +198,7 @@ The csproj reads `CSII_TOOLPATH` from the Windows user scope, where the toolchai
 - Every interactive UI element has a stable class the agent can select.
 - Every UI ↔ C# path is a named binding.
 
-The skills cover testing on each layer, translating, releasing, the game cycle and game updates; the code-style rules sit in [`.claude/rules`](.claude/rules).
+The skills cover testing on each layer, translating, releasing and game updates, and the `cs2-modding` plugin's tools restart the game and read its logs. The code-style rules sit in [`.claude/rules`](.claude/rules).
 
 ### What it leaves out
 

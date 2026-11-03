@@ -156,7 +156,7 @@ describe('init, everything kept', () => {
     const readme = await text(mod.root, 'README.md');
 
     expect(readme).toStartWith('# City Pulse\n\nShows how a city is doing at a glance.\n');
-    expect(readme).toContain('`mise test:game`');
+    expect(readme).toContain('runs the in-game scenarios with the `cs2-modding` plugin');
     expect(readme).toContain('delete `.claude/skills/cp-setup/`');
     expect(readme).toContain('`bunx lefthook install`');
   });

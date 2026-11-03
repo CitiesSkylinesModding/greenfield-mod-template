@@ -172,7 +172,7 @@ run = 'bun --bun typed-scss-modules "Greenfield/UI/src/**/*.module.scss" --expor
 # ==========
 
 [tasks."test"]
-description = "Runs the full test suite: the off-engine C# tests, the UI tests, and the scripts' tests. The in-game scenarios run apart, with `mise test:game`."
+description = "Runs the full test suite: the off-engine C# tests, the UI tests, and the scripts' tests. The in-game scenarios run apart, through the `cs2-dev` MCP server's `test` tool."
 depends = ["test:cs", "test:ui", "test:scripts", "test:template"]
 
 [tasks."test:cs"]
@@ -207,26 +207,14 @@ run = "bun test Greenfield/UI"
 
 [tasks."test:scripts"]
 description = "Runs the tests of the agent and tooling scripts (scripts/) with Bun."
+# A mod may hold no script test, its init having pruned every part that had one.
 raw = true
-run = "bun test scripts"
+run = "bun test scripts --pass-with-no-tests"
 
 [tasks."test:template"]
 description = "Runs the tests of the template's init script (template/) with Bun, on temporary copies of the template."
 raw = true
 run = "bun test template"
-
-[tasks."test:game"]
-description = "Runs the in-game test scenarios in the game, unattended, and reports their results. Requires the game closed and a Debug build deployed (`mise build`). `--keep-open` leaves the game running afterwards; every other argument is a game option."
-raw = true
-run = "bun scripts/test-game.ts"
-
-# GAME TASKS
-# ==========
-
-[tasks."game"]
-description = "Drives the game: `mise game restart [--load <save> | --new [<map>]] [<game options>]`, `mise game stop`, `mise game wait-load`. See scripts/game.ts."
-raw = true
-run = "bun scripts/game.ts"
 
 # PUBLISH TASKS
 # =============

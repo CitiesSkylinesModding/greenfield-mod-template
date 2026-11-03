@@ -1008,10 +1008,6 @@ export function modReadme(options: InitOptions, kept: ReadonlySet<PartId>): stri
     `- \`mise test\`: Runs the off-engine C# tests${
       kept.has('float64') ? ' (a float32 pass, then a float64 pass)' : ''
     }${kept.has('ui-tests') ? ', the UI tests,' : ''} and the scripts' tests.`,
-    ...(kept.has('game-tests')
-      ? ['- `mise test:game`: Runs the in-game test scenarios in the game.']
-      : []),
-    '- `mise game`: Restarts the game, loads a save or a new city, and stops it.',
     ...(kept.has('crowdin')
       ? [
           "- `mise l10n:pull`, `mise l10n:push`: Pull translations from Crowdin and push the repo's edits to it."
@@ -1044,6 +1040,10 @@ export function modReadme(options: InitOptions, kept: ReadonlySet<PartId>): stri
     ...commands,
     '',
     'Run `mise tasks` for the full list.',
+    '',
+    kept.has('game-tests')
+      ? "An agent restarts the game and runs the in-game scenarios with the `cs2-modding` plugin's `cs2-dev` tools."
+      : "An agent restarts the game with the `cs2-modding` plugin's `cs2-dev` tools.",
     ...(kept.has('sample-slice')
       ? [
           '',

@@ -44,7 +44,7 @@ TypeScript, one root `tsconfig.json` covering `Greenfield/UI` and `scripts`:
 - `Greenfield/UI/src`: the React frontend. `utils/bindings` is the typed C#↔TS binding facade, one module per binding group; `vanilla-modules` holds typed stubs for game UI internals; `components` the shared components; `testing` the UI test harness. UI tests are colocated `*.test.ts` / `*.test.tsx` files.
 - `Greenfield/UI/cs2-types`: the game's own `cs2/*` type declarations, copied as they are. Copy them again after a game update, never edit them by hand.
 - `Greenfield.Tests`: the off-engine C# tests, with the native-call shim (`Shim`) and the float64 pass (`Float64`).
-- `scripts`: bun scripts behind mise tasks (game launcher, in-game test runner, Crowdin, Linux toolchain setup), their tests colocated.
+- `scripts`: bun scripts behind mise tasks, their tests colocated.
 - `docs/agents`: `dependency-updates.md`, the packages a sweep left behind and why; `cantrips-loop.md`, where the cantrips skills keep their specs and tickets.
 
 ## Commands
@@ -62,8 +62,6 @@ TypeScript, one root `tsconfig.json` covering `Greenfield/UI` and `scripts`:
 - `mise test`: Run the off-engine C#, UI and scripts tests.
 - `mise test:cs`: Run the C# tests, in a float32 pass then a float64 pass. Always run them this way, never with a bare `dotnet test` or the IDE: those build the mod in full, post-processed and deployed, which fails while the game holds the DLL, and run the float32 pass alone. `mise test:cs:float32` and `mise test:cs:float64` run one pass, a test filter appended.
 - `mise test:ui`: Run the UI tests.
-- `mise test:game`: Run the in-game scenarios in the game, unattended. Needs a Debug build deployed and the game closed.
-- `mise game`: Restart, load, stop and wait on the game (the `gfd-game-cycle` skill).
 - `mise setup:linux`: Install the modding toolchain on Linux, where the in-game installer cannot run. Idempotent, rerun it after a game update; the game must be closed.
 - `mise l10n:pull`: Preview Crowdin's current translations of the source keys added or changed since `--base`, or of every key with `--all`; `--write` puts them into the files. Needs `CROWDIN_PROJECT_ID` and `CROWDIN_PERSONAL_TOKEN`.
 - `mise l10n:push`: Preview which locale-file edits would be pushed to Crowdin; `--push` writes them, which the Boundaries below gate. Needs `CROWDIN_PROJECT_ID` and `CROWDIN_PERSONAL_TOKEN`.
@@ -89,8 +87,10 @@ One agent builds a feature and verifies it in the running game, so every feature
 - Every C# action has a Debug entry point, `#if DEBUG` and static, callable from the unity eval, and the state it changes is readable from there too, as `EntityCounterSystem.DebugCount` is.
 - Every interactive UI element carries a stable class from its stylesheet, which an agent or a test selects by its prefixed BEM name with the hash left out: `[class*="gfd-<block>-<element>_"]`. No test ids.
 - Every UI↔C# path is a named binding, declared in a `utils/bindings` module on the TS side and in a UI system on the C# side.
-- A feature is done when an agent has driven it in the running game (the unity eval for C#, the gameface `game_*` tools for the UI, the `gfd-game-cycle` skill around both) and pinned what is stable as an in-game scenario or a UI test.
+- A feature is done when an agent has driven it in the running game (the unity eval for C#, the gameface `game_*` tools for the UI, the `cs2-dev` tools around both) and pinned what is stable as an in-game scenario or a UI test.
 
+The `cs2-dev` tools restart the game and read its logs, `mod` set to `Greenfield`: read the `cs2-modding` skill's game-cycle reference before the first call.
+The mod logs to `Logs/Greenfield.log` in the game's user data folder, and `mise build` deploys it to `Greenfield/` in the local Mods folder.
 When the game's debugger port (unity) or its UI debugging port (gameface) is unavailable, the `cs2-modding-setup` skill sets them up.
 
 ## Guidelines

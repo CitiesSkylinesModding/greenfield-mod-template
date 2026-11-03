@@ -93,7 +93,7 @@ The first build and test run come before the first commit, so whatever they need
 4. `mise check`, and `mise check:cs` too with `dotnet format`. A formatting failure is fixed by `mise fix`, then the check runs again.
    Every `dotnet format` run warns that warnings were encountered while loading the workspace: the .NET 10 test project referencing the `net48` mod, which is expected.
 5. `mise test`: every off-engine test layer the mod kept.
-6. Offer a first look in the game, through the `gfd-game-cycle` skill (read its `SKILL.md` from the renamed skills folder: a session started before init may list it under its old name), with the `unity-driving` and `gameface-driving` skills loaded before the first `unity` or `game_*` tool call: start a new city and confirm `Logs/Modding.log` loaded the mod from the local Mods folder.
+6. Offer a first look in the game, through the `cs2-dev` tools, with the `unity-driving` and `gameface-driving` skills loaded before the first `unity` or `game_*` tool call: `restart` with `mod` set to the mod ID and a new city, and confirm `Logs/Modding.log` loaded the mod from the local Mods folder, which its `Registered UI Module` line names.
 
 A failure is fixed before the next item, explained to the user in a sentence: a build, post-processing or deploy failure, or a mod missing from the game, through the `cs2-mod-project` skill.
 

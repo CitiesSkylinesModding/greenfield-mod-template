@@ -17,8 +17,8 @@ namespace Greenfield.Scenarios;
 /// another mod's.
 /// The runner constructs a scenario right before it runs it, so the constructor dismisses those
 /// earlier errors, and logs how many it dismissed.
-/// <c>mise test:game</c> still fails the run on an error of the mod's, in its own log or in another
-/// log that names it.
+/// The cs2-dev <c>test</c> tool still fails the run on an error of the mod's, in its own log or in
+/// another log that names it.
 /// </summary>
 internal abstract class ModTestScenario : TestScenario {
   // Counted by Check, reset before each test by ResetChecks.

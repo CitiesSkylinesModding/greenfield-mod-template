@@ -32,7 +32,7 @@ One screen, four answers, each with your proposal from the description:
 - **Mod ID** (`--id`): PascalCase letters and digits, a valid C# identifier, ex. `CityPulse`. It names the folders, the C# project and namespace, the settings file, the log and the locale keys, and is hard to change later.
 - **Display name** (`--name`): what players see, ex. `City Pulse`.
 - **Author** (`--author`): written into `mod.json`; propose `git config user.name`.
-- **Short prefix** (`--prefix`): 2 to 8 lowercase letters and digits, the prefix of the UI's CSS classes and of the skill names (`<prefix>-game-cycle`). Propose the ID's word initials (`HallOfFame` gives `hof`), or its first three letters for a one-word ID, as init derives it.
+- **Short prefix** (`--prefix`): 2 to 8 lowercase letters and digits, the prefix of the UI's CSS classes and of the skill names (`<prefix>-release`). Propose the ID's word initials (`HallOfFame` gives `hof`), or its first three letters for a one-word ID, as init derives it.
 
 **Done when** all four are set.
 
@@ -65,7 +65,7 @@ One screen per part, in this order, each saying what the part is, what keeping i
 
 1. **Sample slice** (`--no-sample-slice`): the entity counter, a mods-menu button opening a vanilla panel that shows the city's entity count and the simulation date. It touches every layer once: a setting, a Burst-compiled system, a UI system and its binding, the panel, a key binding, the 12 locales, a Debug entry point, and a test on each test layer. The template README lists its files, for deleting it later.
 2. **UI tests** (`--no-ui-tests`): bun tests rendering the mod's React components against the game's real UI bundle, with mocked bindings, without launching the game.
-3. **In-game test layer** (`--no-game-tests`): scenarios run by the game's own test framework in a live city, and `mise test:game`, which launches the game unattended, runs them and reports. A run takes minutes, and needs a Debug build.
+3. **In-game test layer** (`--no-game-tests`): scenarios the game's own test framework runs in a live city, through the `cs2-dev` `test` tool, which launches the game unattended and reports each one. A run takes minutes, and needs a Debug build.
 4. **Crowdin** (`--no-crowdin`): `mise l10n:push` and `mise l10n:pull`, syncing the locale files with a Crowdin project where volunteers translate. Ask for the numeric project ID (`--crowdin-project-id`), or leave it for later in `mise.toml`'s `CROWDIN_PROJECT_ID`; the token stays out of the repository, in the environment or `mise.local.toml`. Without Crowdin, the translate skill translates the locales itself.
 5. **Linux setup script** (`--no-linux-setup`): `mise setup:linux`, installing the modding toolchain on Linux, where the game's own installer cannot run.
 6. **float64 test pass** (`--no-float64`): runs the off-engine C# tests a second time in the precision the game's managed code computes `float` in, which catches bugs that only show in game, such as a stored value compared with the same expression computed again. It adds seconds to each test run.

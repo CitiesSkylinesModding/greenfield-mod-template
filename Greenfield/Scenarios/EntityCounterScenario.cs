@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using Colossal;
 using Colossal.TestFramework;
 using Game.Simulation;
-using JetBrains.Annotations;
 using Greenfield.Systems;
+using JetBrains.Annotations;
 
 namespace Greenfield.Scenarios;
 
