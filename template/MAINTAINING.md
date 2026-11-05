@@ -16,6 +16,12 @@ The manifest is the contract between the template and every mod made from it: a 
 - **The licence.** The template's own `LICENSE` is template-only; the setup wizard writes the mod's.
 - **`.template.json`.** The update skill reads it from mods made long ago: add fields, keep the existing ones meaning what they meant.
 
+## Dependency updates
+
+A dependency sweep reaches the default branch as one commit: squash its branch's batches before merging, and list in the body every version moved, tool adopted and ledger entry changed.
+The update skill replays template commits into a mod one at a time, so one sweep is one step for a mod to translate and verify, and the intermediate states a sweep passes through never reach it.
+The ledger, [`dependency-updates.md`](../docs/agents/dependency-updates.md), ships to every mod: give it only the entries a mod's own sweep acts on, and leave a trial on template-only material to the commit body.
+
 ## Verifying
 
 - `mise test:template`: init on temporary copies, every part pruned alone and all together, asserting each declaration fully applied, no placeholder left, every relative Markdown link resolving. Run it after every change above; `mise test` and the pre-push hook run it too.

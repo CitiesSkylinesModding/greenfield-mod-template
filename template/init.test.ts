@@ -477,12 +477,12 @@ describe('init refuses', () => {
   test('a declared file that is gone', async () => {
     const root = await temporaryCopy();
 
-    await rm(path.join(root, 'bunfig.toml'));
+    await rm(path.join(root, 'Greenfield/UI/src/testing'), { recursive: true });
 
-    commitAll(root, 'chore: drop bunfig');
+    commitAll(root, 'chore: drop the UI test harness');
 
     expect(await initFailure(root, ['--no-ui-tests'])).toContain(
-      'Declared file or folder not found: bunfig.toml.'
+      'Declared file or folder not found: Greenfield/UI/src/testing.'
     );
   });
 

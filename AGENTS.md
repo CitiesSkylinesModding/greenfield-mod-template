@@ -11,7 +11,7 @@ A mod has two halves talking over cohtml bindings: the C# logic in `Greenfield`,
 
 - [mise-en-place](https://mise.jdx.dev): manages dev tools, env vars, and tasks for this repo.
 - C# 14 on `net48`, built with the CS2 modding toolchain; the off-engine tests are xUnit v3 on .NET 10, the in-game scenarios run in the game's own test framework.
-- React 18 and TypeScript with SCSS modules, bundled, packaged and tested with bun (`Greenfield/UI/build.ts`), formatted and linted with oxfmt/oxlint.
+- React 18 and TypeScript with SCSS modules, bundled, packaged and tested with bun (`Greenfield/UI/build.ts`), formatted with `bun fmt` on an oxfmt configuration, and linted with oxlint.
 - The UI runs in Coherent Gameface (cohtml), not a browser: web features can be missing or behave differently, so check the `gameface` skill before relying on one.
 - The csmodding plugins are a prerequisite: `coherent-gameface` (the `gameface` skills and the `game_*` MCP tools), `cs2-modding`, and `unity-devtools`. When any of them is missing from a session that touches the game, the UI, or the decompile, stop before starting work and ask the user to load it.
 

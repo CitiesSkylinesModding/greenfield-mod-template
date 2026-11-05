@@ -2,9 +2,10 @@ pre-commit:
   # Stops at a failed step, so the checks never run against stale or missing typings.
   piped: true
   jobs:
-    # Regenerates the *.module.scss.d.ts once, ahead of the checks: tsc and the type-aware oxlint
-    # both resolve `styles.*` through them, and a regeneration racing their reads fails a commit
-    # on a fresh clone. An scss-only change still type-checks the `styles.*` references this way.
+    # Regenerates the *.module.scss.d.ts once, ahead of the checks: `bun check` and the type-aware
+    # oxlint both resolve `styles.*` through them, and a regeneration racing their reads fails a
+    # commit on a fresh clone.
+    # An scss-only change still type-checks the `styles.*` references this way.
     # No glob: it takes well under a second, and running always keeps it ahead of every check.
     - name: css-types
       run: mise build:css-types
@@ -12,18 +13,18 @@ pre-commit:
         parallel: true
         jobs:
           # One root tsconfig covers the whole UI and its tooling, so a staged file anywhere runs
-          # the task that knows the whole project rather than one tsc over the staged files.
+          # the task that knows the whole project rather than one type check over the staged files.
           - name: tsc
             glob: "*.{ts,tsx,js,json,scss}"
             run: mise run --skip-deps check:tsc
           - name: oxlint
             glob: "*.{ts,tsx,js,jsx,mjs,cjs}"
             run: mise exec bun -- bun --bun oxlint --deny-warnings --no-error-on-unmatched-pattern {staged_files}
-          # Wider than oxlint's glob: oxfmt rewrites JSON, Markdown, TOML and YAML too, which puts
-          # mise.toml and this very file in its scope.
+          # Wider than oxlint's glob: `bun fmt` rewrites JSON, Markdown, TOML and YAML too, which
+          # puts mise.toml and this very file in its scope.
           - name: oxfmt
             glob: "*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc,md,toml,yml,yaml}"
-            run: mise exec bun -- bun --bun oxfmt --check --no-error-on-unmatched-pattern {staged_files}
+            run: mise exec bun -- bun fmt --check --no-error-on-unmatched-pattern {staged_files}
 
 # Tests run on push, not commit, to keep commits fast.
 pre-push:

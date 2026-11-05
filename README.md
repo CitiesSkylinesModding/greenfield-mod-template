@@ -117,9 +117,9 @@ sass stays at 1.78: later versions emit CSS Color 4 syntax, which Gameface canno
 React stays at 18.3.1 because the game supplies React at runtime and the mod's copy only exists to compile against it.
 [`docs/agents/dependency-updates.md`](docs/agents/dependency-updates.md) records both, so a dependency sweep leaves them alone.
 
-#### oxlint and oxfmt
+#### oxlint and bun fmt
 
-TypeScript is linted and formatted by [oxlint and oxfmt](https://oxc.rs) on a shared configuration. The rules that push DOM APIs Gameface lacks, such as `append()` and `dataset`, are turned off.
+TypeScript is linted by [oxlint](https://oxc.rs) and formatted by [`bun fmt`](https://bun.com/docs/runtime/format), Bun's built-in port of oxfmt, both on a shared configuration. The rules that push DOM APIs Gameface lacks, such as `append()` and `dataset`, are turned off.
 A pre-commit hook runs the type check, the linter, and the formatter check. A pre-push hook runs the tests whose files changed, all but the in-game scenarios.
 Commit messages follow [Conventional Commits](https://www.conventionalcommits.org), which the release skill writes the changelog from.
 

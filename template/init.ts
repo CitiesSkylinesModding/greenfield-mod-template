@@ -88,7 +88,7 @@ export interface InitReport {
   readonly isLockfileCurrent: boolean;
 
   /**
-   * Whether oxfmt reformatted the result, which needs the packages installed.
+   * Whether `bun fmt` reformatted the result, which needs the packages its configuration loads.
    */
   readonly isFormatted: boolean;
 }
@@ -1192,15 +1192,15 @@ function updateLockfile(root: string): boolean {
 }
 
 /**
- * Formats the result with the repository's own oxfmt, when installed: the rename changes line
- * lengths, which moves where the formatter wraps.
+ * Formats the result with `bun fmt`, once the packages oxfmt.config.ts loads are installed: the
+ * rename changes line lengths, which moves where the formatter wraps.
  */
 function format(root: string): boolean {
   if (!existsSync(path.join(root, 'node_modules', 'oxfmt'))) {
     return false;
   }
 
-  return Bun.spawnSync([process.execPath, '--bun', 'oxfmt'], {
+  return Bun.spawnSync([process.execPath, 'fmt'], {
     cwd: root,
     stdout: 'ignore',
     stderr: 'ignore'

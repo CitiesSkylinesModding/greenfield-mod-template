@@ -136,6 +136,8 @@ const EDITORCONFIG = '.editorconfig';
 
 const INDEX_LAYOUT = '.idea/.idea.Greenfield/.idea/indexLayout.xml';
 
+const BUNFIG_TOML = 'bunfig.toml';
+
 const OFF_ENGINE_SKILL = '.claude/skills/gfd-cs-offengine-testing/SKILL.md';
 
 const GAME_TESTING_SKILL = '.claude/skills/gfd-game-testing/SKILL.md';
@@ -323,7 +325,6 @@ const uiTests: Part = {
   flag: '--no-ui-tests',
   title: 'UI tests',
   files: [
-    'bunfig.toml',
     'Greenfield/UI/src/testing',
     'Greenfield/UI/src/components/tooltip.test.tsx',
     'Greenfield/UI/src/entity-counter/entity-counter.test.tsx',
@@ -380,7 +381,11 @@ const uiTests: Part = {
       find: line('- **The UI test harness.**'),
       replace: ''
     },
-    { file: INDEX_LAYOUT, find: '      <Path>bunfig.toml</Path>\n', replace: '' }
+    {
+      file: BUNFIG_TOML,
+      find: /\n(?:#.*\n)*\[test\]\npreload = .*\n/u,
+      replace: ''
+    }
   ],
   traces: [
     'test:ui',
@@ -389,8 +394,7 @@ const uiTests: Part = {
     'testing-library',
     'gfd-ui-testing',
     'UI test',
-    'UI harness',
-    'bunfig'
+    'UI harness'
   ]
 };
 

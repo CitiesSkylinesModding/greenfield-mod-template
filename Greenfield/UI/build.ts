@@ -125,6 +125,7 @@ async function bundle(): Promise<boolean> {
     target: 'browser',
     format: 'esm',
     minify: true,
+    banner,
     // Selects the production JSX runtime (jsx, not jsxDEV), as the game ships production React.
     define: { 'process.env.NODE_ENV': '"production"' },
     publicPath: 'coui://ui-mods/',
@@ -177,7 +178,7 @@ async function bundle(): Promise<boolean> {
   await mkdir(outputDirectory, { recursive: true });
 
   await Promise.all([
-    Bun.write(path.join(outputDirectory, `${mod.id}.mjs`), `${banner}\n${await js.text()}`),
+    Bun.write(path.join(outputDirectory, `${mod.id}.mjs`), js),
     // Written even when empty: the entry point declares `hasCSS = true`, and a missing stylesheet
     // hangs the game's module loader for every mod.
     Bun.write(path.join(outputDirectory, `${mod.id}.css`), css),

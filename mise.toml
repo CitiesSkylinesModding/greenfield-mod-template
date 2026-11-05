@@ -3,11 +3,13 @@
 # Every task body is a single command or a bun script, with no POSIX shell syntax (line
 # continuations, pipes, variables): mise runs inline tasks through `cmd /c` on Windows.
 
-min_version = { soft = "2026.10.20" }
+# hard: the oldest mise that reads this file, the first with task `lock`. soft: the one the template
+# last passed on.
+min_version = { hard = "2026.11.0", soft = "2026.11.1" }
 
 [tools]
 bun = "1.4.4"
-dotnet = "10.0.402"
+dotnet = "10.0.403"
 oxipng = "10.2.1"
 
 [env]
@@ -26,8 +28,10 @@ run = [
   "mise up --interactive --bump",
   # using `mise exec bun` makes sure bun is found if a bun upgrade was just made
   "mise exec bun -- bun update --interactive",
-  # make sure transitive dependencies are updated & deduplicated
-  "mise exec bun -- bun update"
+  # refreshes every transitive dependency within its range, which the interactive pick leaves locked
+  "mise exec bun -- bun update",
+  # folds the transitive versions the updates left side by side onto one where the ranges allow
+  "mise exec bun -- bun dedupe"
 ]
 
 [tasks."dev"]
@@ -54,22 +58,22 @@ run = 'bun --bun typed-scss-modules "Greenfield/UI/src/**/*.module.scss" --expor
 # The in-place auto-fixers live under fix:* (see FIX TASKS).
 # Run `mise fix` locally to apply, `mise check` to verify.
 # The `build:css-types` dependency is the one exception, and not a source write: it regenerates the
-# gitignored *.module.scss.d.ts that tsc and oxlint need to resolve the `styles.*` imports.
+# gitignored *.module.scss.d.ts that `bun check` and oxlint need to resolve the `styles.*` imports.
 
 [tasks."check"]
 description = "Verify read-only: typescript, oxlint, and oxfmt. Writes nothing, run `mise fix` to auto-fix."
 run = ["mise check:tsc", "mise check:oxlint", "mise check:oxfmt"]
 
 [tasks."check:tsc"]
-description = "Type-checks the UI with tsc (read-only)."
+description = "Type-checks the UI with `bun check`, Bun's port of tsc (read-only)."
 depends = "build:css-types"
 raw = true
-run = "bun --bun tsc --noEmit"
+run = "bun check"
 
 [tasks."check:oxfmt"]
-description = "Verifies formatting with oxfmt (read-only, `mise fix:oxfmt` writes)."
+description = "Verifies formatting with `bun fmt`, on the oxfmt configuration (read-only, `mise fix:oxfmt` writes)."
 raw = true
-run = "bun --bun oxfmt --check"
+run = "bun fmt --check"
 
 [tasks."check:oxlint"]
 description = "Lints with oxlint, warnings denied (read-only, `mise fix:oxlint` auto-fixes)."
@@ -91,10 +95,10 @@ description = "Verify read-only (typescript, oxlint, oxfmt), output optimized fo
 run = ["mise check:agents:tsc", "mise check:agents:oxlint", "mise check:oxfmt"]
 
 [tasks."check:agents:tsc"]
-description = "Type-checks the UI with tsc, output optimized for AI agents."
+description = "Type-checks the UI with `bun check`, output optimized for AI agents."
 depends = "build:css-types"
 raw = true
-run = "bun --bun tsc --noEmit --pretty false"
+run = "bun check --no-pretty"
 
 [tasks."check:agents:oxlint"]
 description = "Lints with oxlint (read-only, warnings denied), output optimized for AI agents."
@@ -118,9 +122,9 @@ raw = true
 run = "bun --bun oxlint --fix"
 
 [tasks."fix:oxfmt"]
-description = "Formats code in place with oxfmt (writes, `mise check:oxfmt` only verifies)."
+description = "Formats code in place with `bun fmt`, on the oxfmt configuration (writes, `mise check:oxfmt` only verifies)."
 raw = true
-run = "bun --bun oxfmt"
+run = "bun fmt"
 
 [tasks."fix:cs"]
 description = "Formats the C# code in place with jb (ReSharper) cleanupcode."
@@ -151,9 +155,15 @@ run = "bash scripts/setup-linux-toolchain.sh"
 # BUILD TASKS
 # ===========
 
+# The tasks writing to the mod's Mods folder take the `Greenfield:deploy` lock, so runs from other
+# terminals, agents or worktrees queue instead of overwriting each other's output.
+# A nested `mise run` inherits it.
+# The `dev:bundle` watcher stays out, as it would hold the lock forever.
+
 [tasks."build"]
 description = "Builds and deploys the whole mod: the C# assembly, the post-processor, and the UI (the csproj calls `build:ui` itself). Requires the game to be closed, which holds the deployed assembly open."
 raw = true
+lock = "Greenfield:deploy"
 run = "dotnet build Greenfield.slnx"
 
 [tasks."build:ui"]
@@ -162,10 +172,11 @@ depends = ["build:css-types", "build:bundle"]
 
 [tasks."build:bundle"]
 description = "Builds the UI bundle with Bun (`Greenfield/UI/build.ts`). Does not type-check: `mise check` does."
+lock = "Greenfield:deploy"
 run = "bun Greenfield/UI/build.ts"
 
 [tasks."build:css-types"]
-description = "Generates the gitignored *.module.scss.d.ts so tsc catches stale styles.* references."
+description = "Generates the gitignored *.module.scss.d.ts so `bun check` catches stale styles.* references."
 run = 'bun --bun typed-scss-modules "Greenfield/UI/src/**/*.module.scss" --exportType named --nameFormat camel'
 
 # TEST TASKS
@@ -222,12 +233,14 @@ run = "bun test template"
 [tasks."publish"]
 description = "Builds the mod in Release and publishes it as a new version on Paradox Mods."
 raw = true
+lock = "Greenfield:deploy"
 run = "dotnet publish Greenfield/Greenfield.csproj -p:PublishProfile=PublishNewVersion"
 
 [tasks."publish:page"]
 description = "Updates the Paradox Mods page from PublishConfiguration.xml (description, tags, thumbnail and screenshots) without shipping a version."
 depends = ["images:optimize"]
 raw = true
+lock = "Greenfield:deploy"
 run = "dotnet publish Greenfield/Greenfield.csproj -p:PublishProfile=UpdatePublishedConfiguration"
 
 # LOCALIZATION TASKS
