@@ -62,16 +62,17 @@ export async function sourceFile(): Promise<{ readonly id: number }> {
   return source;
 }
 
-// Every source string by key, with its Crowdin id and text. The JSON parser stores each key as its
-// quoted source text, so `"Greenfield.Common.BASE_ERROR"` is the identifier of the key
-// `Greenfield.Common.BASE_ERROR`.
+// Every source string by key, with its Crowdin id, its master's where it duplicates another
+// string's text, and its text. The JSON parser stores each key as its quoted source text, so
+// `"Greenfield.Common.BASE_ERROR"` is the identifier of the key `Greenfield.Common.BASE_ERROR`.
 export async function sourceStrings(): Promise<
-  Map<string, { readonly id: number; readonly text: string }>
+  Map<string, { readonly id: number; readonly masterId: number; readonly text: string }>
 > {
   const source = await sourceFile();
 
   const strings = await list<{
     readonly id: number;
+    readonly masterStringId: number | null;
     readonly identifier: string;
     readonly text: string;
   }>(`/projects/${projectId}/strings?fileId=${source.id}`);
@@ -79,7 +80,7 @@ export async function sourceStrings(): Promise<
   return new Map(
     strings.map(string => [
       JSON.parse(string.identifier) as string,
-      { id: string.id, text: string.text }
+      { id: string.id, masterId: string.masterStringId ?? string.id, text: string.text }
     ])
   );
 }

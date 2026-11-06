@@ -40,7 +40,6 @@ import {
   resolveCommit,
   SOURCE_FILE_NAME,
   sourceStrings,
-  stringIdsByKey,
   uploadSourceFile,
   git
 } from './crowdin';
@@ -62,6 +61,8 @@ const BATCH_SIZE = 100;
 interface Change {
   readonly key: string;
   readonly stringId: number;
+  // The string whose approvals settle this one: its master, where it duplicates another's text.
+  readonly approvalStringId: number;
   readonly text: string;
 }
 
@@ -106,7 +107,7 @@ async function run(): Promise<void> {
     return;
   }
 
-  const stringIds = await stringIdsByKey();
+  const strings = await sourceStrings();
   let pushed = 0;
 
   for (const fileName of fileNames) {
@@ -128,9 +129,9 @@ async function run(): Promise<void> {
         continue;
       }
 
-      const stringId = stringIds.get(key);
+      const string = strings.get(key);
 
-      if (stringId == null) {
+      if (string == null) {
         if (!isPush && addedKeys.has(key)) {
           console.info(`[${fileName}] ${key}: add unapproved, after the source upload`);
           pushed++;
@@ -143,7 +144,7 @@ async function run(): Promise<void> {
         continue;
       }
 
-      changes.push({ key, stringId, text });
+      changes.push({ key, stringId: string.id, approvalStringId: string.masterId, text });
     }
 
     pushed += await pushLanguage(fileName, languageId, changes);
@@ -220,7 +221,7 @@ async function pushLanguage(
       continue;
     }
 
-    const approvedId = approvals.byString.get(change.stringId);
+    const approvedId = approvals.byString.get(change.approvalStringId);
 
     if (match && approvedId == null) {
       // An older variant the repo returns to is not the one Crowdin exports.
@@ -317,7 +318,7 @@ async function exportedTranslations(
 }
 
 // Every approval of the language at once: Crowdin files a duplicate source string's approvals under
-// its master string, so a translation is looked up by its own id, and a string by its id.
+// its master string, so a translation is looked up by its own id, and a string by its master's.
 async function languageApprovals(languageId: string): Promise<Approvals> {
   const approvals = await list<{ readonly translationId: number; readonly stringId: number }>(
     `/projects/${projectId}/approvals?languageId=${languageId}`
