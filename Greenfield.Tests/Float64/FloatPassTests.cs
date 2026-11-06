@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Colossal.Logging;
 using Game.Simulation;
@@ -32,6 +33,9 @@ public sealed class FloatPassTests {
   /// What <c>Large + 1 - Large</c> leaves: 1 in double precision, 0 in single precision.
   /// </summary>
   private const float ExcessInPass = FloatPassTests.IsFloat64Pass ? 1f : 0f;
+
+  /// <seealso cref="FrameworkEnumConstant_SurvivesTheWidening"/>
+  private const BindingFlags FrameworkFlags = BindingFlags.NonPublic | BindingFlags.Instance;
 
   // IDE0044 asks for readonly, which a volatile field cannot be (CS0678).
   #pragma warning disable IDE0044
@@ -143,6 +147,14 @@ public sealed class FloatPassTests {
       Enumerable.Range(1, 199),
       static last => FloatPassTests.LeavesZeroLengthRun(last, 0.7f, 0.7f * 0.01f)
     );
+
+  /// <summary>
+  /// A constant field of a .NET enum the game's System.Runtime facade does not forward, whose type
+  /// the widener resolves to write the assembly back.
+  /// </summary>
+  [Fact]
+  public void FrameworkEnumConstant_SurvivesTheWidening() =>
+    Assert.NotEqual(default, FloatPassTests.FrameworkFlags);
 
   [MethodImpl(MethodImplOptions.NoInlining)]
   private static float Excess(float a, float b) => a + b - a;

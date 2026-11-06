@@ -101,12 +101,14 @@
   </ItemGroup>
 
   <!-- Without a net48 targeting pack, the reference pack's mscorlib wins over the game's: swap it
-       back (no-op on Windows). -->
+       back (no-op on Windows). The game's System goes with it: the game's mscorlib defines types
+       the reference pack's System defines too (Queue<T>), where the game's System forwards them. -->
   <Target Name="UseGameMscorlibOnUnix" AfterTargets="ResolveAssemblyReferences"
           Condition="'$(OS)' != 'Windows_NT' AND '$(MSCORLIBPath)' != ''">
     <ItemGroup>
-      <ReferencePath Remove="@(ReferencePath)" Condition="'%(Filename)' == 'mscorlib'" />
-      <ReferencePath Include="$(MSCORLIBPath)">
+      <ReferencePath Remove="@(ReferencePath)"
+                     Condition="'%(Filename)' == 'mscorlib' Or '%(Filename)' == 'System'" />
+      <ReferencePath Include="$(MSCORLIBPath);$([System.IO.Path]::GetDirectoryName('$(MSCORLIBPath)'))/System.dll">
         <Private>false</Private>
       </ReferencePath>
     </ItemGroup>

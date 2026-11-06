@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
@@ -27,7 +28,8 @@ namespace Greenfield.Tests.Float64;
 /// Run by Float64.targets on the float64 pass's test output, as a file-based app:
 /// <c>dotnet run --file FloatWidener.cs -- [--references=&lt;dir&gt;]... &lt;file&gt;...</c>, each
 /// file an assembly, or <c>@</c> and a file listing assemblies, one per line.
-/// Cecil resolves an assembly's references next to it, then in each <c>--references</c> folder.
+/// Cecil resolves an assembly's references next to it, then in the .NET runtime's folder, then in
+/// each <c>--references</c> folder.
 /// An assembly already rewritten carries the <see cref="FloatWidener.Marker"/> type and is skipped.
 /// </para>
 /// </summary>
@@ -70,6 +72,10 @@ internal static class FloatWidener {
     using var resolver = new InMemoryResolver();
 
     resolver.AddSearchDirectory(directory);
+
+    // The test assembly's .NET references, before the game's folder: the game's System.Runtime is
+    // an older facade that forwards only part of the framework (BindingFlags is missing).
+    resolver.AddSearchDirectory(RuntimeEnvironment.GetRuntimeDirectory());
 
     foreach (var reference in references) {
       resolver.AddSearchDirectory(reference);
