@@ -21,7 +21,6 @@ The conventions a translator or a reviewer of a locale needs and would not guess
 
 ## de-DE
 
-- Die Mod is feminine in this file, where the game also writes der Mod, so every label agreeing with it agrees feminine.
 - „ “ quotes; a setting name in prose is bare, no quotes, capitalized as the game writes it.
 - Game errors: du and Sie mixed → the file's du; "..." → …; a compound split by spaces ("Tilt-Shift Nahfeld Beginn") → joined or hyphenated; an English plural ("Dependencys") → the German word (Abhängigkeiten).
 
@@ -34,12 +33,11 @@ The conventions a translator or a reviewer of a locale needs and would not guess
 ## fr-FR
 
 - « » with U+00A0, the ordinary no-break space, inside; U+00A0 before : ; ? !; a product name keeps its English punctuation ("Cities: Skylines II").
-- "carte" is the city's map; a setting name in prose is bare and capitalized.
+- A setting name in prose is bare and capitalized.
 - Game errors: ' → ’; "..." → …; a plain space, or none, before : ; ? ! or inside « » → U+00A0; " - " as a separator → a colon.
 
 ## it-IT
 
-- Mod is masculine in this file (il mod, del mod), where the game writes la mod.
 - A bare adjective as a label ("Tue") reads oddly; give it its article ("Le tue").
 - Game errors: straight "…" quotes → « »; ' → ’; "..." → …; " - " as a separator → a colon.
 - Game terms: the Mods menu is "Modalità" (see Every locale); Elementi for assets, Oggetti for props.
@@ -88,3 +86,19 @@ The conventions a translator or a reviewer of a locale needs and would not guess
 - A label before a placeholder that may start with a digit or a word takes a full-width colon ("時間：{WHEN}") so the spacing holds either way.
 - A two-character noun that also reads as a verb takes a qualifier as a column header.
 - Game errors: half-width ( ) around Chinese ("教廷 (梵蒂岡城國)") → （）.
+
+## This mod's locale files
+
+What each locale file settled for the mod's own strings: its form of address, the gender it gives "mod", its words for the mod's concepts. A line here wins over the sections above for its locale.
+
+### de-DE
+
+- Die Mod is feminine in this file, where the game also writes der Mod, so every label agreeing with it agrees feminine.
+
+### fr-FR
+
+- "carte" is the city's map.
+
+### it-IT
+
+- Mod is masculine in this file (il mod, del mod), where the game writes la mod.

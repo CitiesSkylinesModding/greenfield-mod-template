@@ -32,6 +32,7 @@ mise test:cs:float64 --filter-method '*ReadBack*'
   Give the logic it holds a pure, `internal static` home the system calls, and test that, as [`EntityCounterSystem.CountChunkEntities`](../../../Greenfield/Systems/EntityCounterSystem.cs) and its [tests](../../../Greenfield.Tests/Systems/EntityCounterSystemTests.cs) do.
   A Burst job's body is the same: the static method it calls runs here.
 - Logic that grows past a helper goes in a plain class constructed without the engine, its engine-bound collaborators passed in behind a mod-owned interface.
+- A seam earns its place when an off-engine test pins behaviour behind it: data a system reads and binds unchanged stays in the system rather than relaying through such a class.
 - The mod's csproj names the test project in `InternalsVisibleTo`: keep test-only access `internal`, never `public`.
 - What needs the live game (a system over a loaded city, a prefab, a save) is an in-game scenario: the `gfd-game-testing` skill.
 
