@@ -35,8 +35,7 @@ Drive the component through the mock engine exported by [`testing/game-setup.ts`
 
 - `setBinding(group, name, value)` BEFORE `render` configures what a `bindValue(group, name, default)` returns; called after, it updates the subscribed components, so wrap it in `act`.
   An unconfigured binding keeps its `bindValue` default; a default-less binding throws, which is the intended "you forgot to configure this" signal.
-  The harness answers the game's tutorial bindings itself, since every vanilla tutorial target (a `Tab`, for one) reads them.
-  It leaves `input.useTextFieldInputBarrier` to the test: one rendering a vanilla `TextInput` sets it to `false`.
+  The harness itself answers the game bindings vanilla controls read with no default: the tutorial ones every vanilla tutorial target (a `Tab`, for one) reads, a `TextInput`'s input barrier, and the glyph and keyboard-layout options a key's icons read.
 - `setMapBinding(group, name, key, value)` configures one MapEntry binding (e.g. `cs2/ui` input hints); unconfigured entries resolve to `null`, which is enough for game widgets to render.
 - `setTranslations({ id: text })` sets what `translate` returns for an id. Without it, `translate(id, fallback)` returns the fallback, or the id when none is given, so a rendered label's text is its localization id; match on that. A string with `{PLACEHOLDER}` arguments needs its translation set, or the arguments are dropped.
 - `getTriggers()` returns the outbound command triggers (`{ event, args }`) recorded since the last reset.

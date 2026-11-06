@@ -4,7 +4,18 @@ import { lazyBindValue } from './lazy-value-binding';
 
 export interface ProxyBinding {
   readonly binding: ControlPath;
-  readonly modifiers: readonly ControlPath[];
+  // Mutable, as the game's `ControlIcons` takes it.
+  readonly modifiers: ControlPath[];
+}
+
+export interface InputAction {
+  /**
+   * The action's binding, as `group.name`.
+   */
+  readonly id: string;
+
+  readonly useInputBinding: () => ProxyBinding;
+  readonly useInputPhase: () => InputActionPhase;
 }
 
 export type InputActionPhase = 'Disabled' | 'Waiting' | 'Started' | 'Performed' | 'Canceled';
@@ -16,13 +27,7 @@ export type InputActionPhase = 'Disabled' | 'Waiting' | 'Started' | 'Performed' 
  * @see useInputBinding
  * @see useInputPhase
  */
-export function bindInputAction(
-  group: string,
-  name: string
-): {
-  readonly useInputBinding: () => ProxyBinding;
-  readonly useInputPhase: () => InputActionPhase;
-} {
+export function bindInputAction(group: string, name: string): InputAction {
   const binding$ = lazyBindValue<ProxyBinding>(group, `${name}.binding`, {
     binding: {
       device: 'Unknown',
@@ -35,7 +40,7 @@ export function bindInputAction(
   const phase$ = lazyBindValue<InputActionPhase>(group, `${name}.phase`, 'Disabled');
 
   // noinspection JSUnusedGlobalSymbols
-  return { useInputBinding, useInputPhase };
+  return { id: `${group}.${name}`, useInputBinding, useInputPhase };
 
   function useInputBinding(): ProxyBinding {
     return useValue(binding$());

@@ -1,4 +1,4 @@
-import type { BalloonAlignment, BalloonDirection } from 'cs2/ui';
+import type { BalloonAlignment, BalloonDirection, BalloonTheme } from 'cs2/ui';
 import { type ReactElement, type ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import {
   AnchoredBalloon,
@@ -18,6 +18,10 @@ export interface TooltipProps {
   readonly disabled?: boolean | undefined;
   readonly forceVisible?: boolean | undefined;
   readonly delayTime?: number | undefined;
+  /**
+   * The balloon's look, the vanilla tooltip's by default.
+   */
+  readonly theme?: Partial<BalloonTheme> | undefined;
   /**
    * Applied to the balloon, not to the anchor.
    */
@@ -48,6 +52,7 @@ export function Tooltip({
   disabled = false,
   forceVisible = false,
   delayTime,
+  theme = vanillaTooltipTheme,
   className,
   children
 }: Readonly<TooltipProps>): ReactElement {
@@ -125,7 +130,7 @@ export function Tooltip({
       visible={(forceVisible || state.isHovered) && !disabled && Boolean(tooltip)}
       content={tooltip}
       balloonUiTarget={balloonUiTarget}
-      theme={vanillaTooltipTheme}
+      theme={theme}
       delayTime={state.isHeldClosed ? 0 : delayTime}
       className={className}
       anchorElRef={anchorElRef}>

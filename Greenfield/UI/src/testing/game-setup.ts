@@ -59,11 +59,18 @@ const recordedTriggers: RecordedTrigger[] = [];
 // Localization id -> string, consulted by `translate` before its echo-the-id default.
 const translations = new Map<string, string>();
 
-// Game state every tutorial target (a vanilla tab, for one) reads from a default-less binding,
-// answered unless a test configures it: null is no running tutorial.
-const gameBindingValues: ReadonlyMap<string, unknown> = new Map([
+// Game state vanilla controls read from a default-less binding, answered unless a test configures
+// it: every tutorial target (a vanilla tab, for one) asks for the running tutorial, null being
+// none, a text field asks whether an input barrier holds the keyboard, and a key's icons ask which
+// gamepad's glyphs and keyboard layout to draw, 0 being the Xbox's and the detected layout, with no
+// key remapped by it.
+const gameBindingValues: ReadonlyMap<string, unknown> = new Map<string, unknown>([
   ['tutorials.activeTutorial', null],
-  ['tutorials.activeTutorialPhase', null]
+  ['tutorials.activeTutorialPhase', null],
+  ['input.useTextFieldInputBarrier', false],
+  ['options.inputHintsType', 0],
+  ['options.keyboardLayout', 0],
+  ['options.layoutMap', {}]
 ]);
 
 /**
