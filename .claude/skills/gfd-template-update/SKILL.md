@@ -1,6 +1,6 @@
 ---
 name: gfd-template-update
-description: Bring the template's later improvements into a mod made from it, one template commit at a time. Use when the user wants to update a mod from the template, or to know what the template changed since a mod was made.
+description: Bring the template's later improvements into a mod made from it, one template commit at a time. Use when the user wants to update a mod from the template, or to know what the template changed since a mod was made or where the mod departs from it.
 argument-hint: '<path to the mod>'
 ---
 
@@ -74,3 +74,8 @@ Set `templateCommit` in `.template.json` to the HEAD whose commits step 2 listed
 Summarize in bullets: what was applied, what was skipped and why, and what the user chose to apply by hand later.
 
 **Done when** `templateCommit` names the template's HEAD and the summary is given.
+
+## Where the mod departs from the template
+
+To list what the mod changed in the template's files (a hunk step 3 cannot fit, or the user asks), rebuild the template as `mise init` would have written the mod: a clone of this repository checked out at `templateCommit`, `mise init` run there with the mod's ID and prefix from `names`, its `--agent-dir`, `--versioning semver` unless the mod's version opens with the year, its `--crowdin-project-id` where it kept Crowdin, a `--no-<part>` for each part `.template.json`'s `parts` marks false (`--formatter dotnet-format` for `jb`), and `--name`, `--author` and `--description` of any value, then `bun install` and `mise fix:oxfmt`.
+`diff -rq <clone> <mod>`, `.git`, `node_modules` and build output excluded, lists every template file the mod changed; files only the mod holds are its own.

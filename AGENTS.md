@@ -89,6 +89,7 @@ One agent builds a feature and verifies it in the running game, so every feature
 - Every UI↔C# path is a named binding, declared in a `utils/bindings` module on the TS side and in a UI system on the C# side.
 - A feature is done when an agent has driven it in the running game (the unity eval for C#, the gameface `game_*` tools for the UI, the `cs2-dev` tools around both) and pinned what is stable as an in-game scenario or a UI test.
 
+Drive the running game yourself to verify a change, during a review or simplify pass as much as during the work itself.
 The `cs2-dev` tools restart the game and read its logs, `mod` set to `Greenfield`: read the `cs2-modding` skill's game-cycle reference before the first call.
 The mod logs to `Logs/Greenfield.log` in the game's user data folder, and `mise build` deploys it to `Greenfield/` in the local Mods folder.
 When the game's debugger port (unity) or its UI debugging port (gameface) is unavailable, the `cs2-modding-setup` skill sets them up.
