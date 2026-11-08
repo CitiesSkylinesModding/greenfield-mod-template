@@ -170,8 +170,11 @@ async function bundle(): Promise<boolean> {
   }
 
   // Concatenated in the order the modules evaluate, so of two rules of equal specificity, the one
-  // from the module imported later wins. Empty for a mod with no styles.
-  const css = order.flatMap(modulePath => stylesheets.get(modulePath) ?? []).join('\n');
+  // from the module imported later wins. A mod with no styles still ships a comment: the game's
+  // module loader waits for the stylesheet's `load` event, and cohtml fires `error` on an empty
+  // file instead, which leaves every mod's UI on the loading screen for good.
+  const css =
+    order.flatMap(modulePath => stylesheets.get(modulePath) ?? []).join('\n') || '/* no styles */';
 
   // The C# build deploys to the same folder: clear only what this build owns.
   await rm(path.join(outputDirectory, 'images'), { recursive: true, force: true });
@@ -179,8 +182,8 @@ async function bundle(): Promise<boolean> {
 
   await Promise.all([
     Bun.write(path.join(outputDirectory, `${mod.id}.mjs`), js),
-    // Written even when empty: the entry point declares `hasCSS = true`, and a missing stylesheet
-    // hangs the game's module loader for every mod.
+    // Written for a mod with no styles too: the entry point declares `hasCSS = true`, and a
+    // missing stylesheet hangs the game's module loader for every mod.
     Bun.write(path.join(outputDirectory, `${mod.id}.css`), css),
     // The minifier keeps the `/*!` notices but drops React's `@license` one, shipped here instead.
     Bun.write(
