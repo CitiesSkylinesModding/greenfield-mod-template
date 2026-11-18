@@ -1,6 +1,6 @@
 import { LocalizedDate, LocalizedNumber } from 'cs2/l10n';
 import { Panel, PanelSection, PanelSectionRow } from 'cs2/ui';
-import { type ReactElement, useEffect } from 'react';
+import type { ReactElement } from 'react';
 import { useTranslate } from '../utils';
 import * as bindings from '../utils/bindings';
 import { useIsEntityCounterPanelOpen } from './use-entity-counter-panel';
@@ -13,13 +13,7 @@ import * as styles from './entity-counter-panel.module.scss';
 export function EntityCounterPanel(): ReactElement | null {
   const [isOpen, setIsOpen] = useIsEntityCounterPanelOpen();
 
-  const togglePhase = bindings.entityCounterToggleInputAction.useInputPhase();
-
-  useEffect(() => {
-    if (togglePhase == 'Performed') {
-      setIsOpen(open => !open);
-    }
-  }, [togglePhase, setIsOpen]);
+  bindings.entityCounterToggleInputAction.useInputPress(() => setIsOpen(open => !open));
 
   return isOpen ? <EntityCounterPanelContent onClose={() => setIsOpen(false)} /> : null;
 }

@@ -74,6 +74,18 @@ describe('the entity counter', () => {
     expect(isPanelOpen()).toBe(false);
   });
 
+  it(`opens on a press released in the frame it came in`, () => {
+    render(<EntityCounter />);
+
+    // One input update delivers both phases, and React renders once after them.
+    act(() => {
+      setBinding(GROUP, 'toggleInputAction.phase', 'Performed');
+      setBinding(GROUP, 'toggleInputAction.phase', 'Canceled');
+    });
+
+    expect(isPanelOpen()).toBe(true);
+  });
+
   it(`shows the count of what the settings select, and the simulation date`, () => {
     setTranslations({
       'Greenfield.EntityCounter.COUNTED[citizens]': 'Citizens',
