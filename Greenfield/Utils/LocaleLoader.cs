@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Colossal.Json;
 using Colossal.Localization;
+using Game.Input;
+using Game.Modding;
 using Game.SceneFlow;
 
 namespace Greenfield.Utils;
@@ -12,7 +16,8 @@ namespace Greenfield.Utils;
 /// <summary>
 /// Provides functionality for managing and loading locale dictionaries matching the current in-game
 /// locale set by the user.
-/// The dictionaries are the flat JSON files of <c>Locales/</c>, embedded in the assembly.
+/// The dictionaries are the flat JSON files of <c>Locales/</c>, embedded in the assembly, each
+/// completed with the aliases of <see cref="ListAliases"/>.
 /// </summary>
 internal static class LocaleLoader {
   internal const string ResourcePrefix = $"{nameof(Greenfield)}.Locales.";
@@ -28,7 +33,13 @@ internal static class LocaleLoader {
   private static readonly Regex CommentPattern =
     new(@"^[ \t]*//.*(?:\r?\n)?", RegexOptions.Compiled | RegexOptions.Multiline);
 
-  internal static void Setup() {
+  // Set once by Setup, before the first locale loads.
+  /// <seealso cref="ListAliases"/>
+  private static IReadOnlyList<(string Key, string SourceKey)> settingsAliases = [];
+
+  internal static void Setup(ModSetting settings) {
+    LocaleLoader.settingsAliases = LocaleLoader.ListAliases(settings);
+
     // The game fills the gaps of the active locale from its fallback locale, which holds the mod's
     // strings only once they are registered under it: a locale the mod does not ship, or does not
     // translate fully, then reads them in English rather than as keys.
@@ -95,6 +106,46 @@ internal static class LocaleLoader {
     return interpolatedDictionary;
   }
 
+  /// <summary>
+  /// Lists the keys the game reads for strings the locale files hold under another key, each with
+  /// that other key: the rebinding dialog titles a key binding with the binding's own key, where
+  /// the files hold the binding option's label, and names the mod with its input map's key, where
+  /// the files hold the options section's name.
+  /// </summary>
+  internal static List<(string Key, string SourceKey)> ListAliases(ModSetting settings) {
+    // The properties the game generates a binding for (decompile, ModSetting.keyBindingProperties).
+    var bindings = settings
+      .GetType()
+      .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+      .Where(static property =>
+        property is { CanRead: true, CanWrite: true } &&
+        property.PropertyType == typeof(ProxyBinding)
+      )
+      .Select(property => (
+          // The key the dialog reads (game UI bundle, `Options.OPTION[${binding.title}]`).
+          $"Options.OPTION[{((ProxyBinding) property.GetValue(settings)).title}]",
+          settings.GetOptionLabelLocaleID(property.Name)
+        )
+      );
+
+    return [(settings.GetBindingMapLocaleID(), settings.GetSettingsLocaleID()), .. bindings];
+  }
+
+  /// <summary>
+  /// Copies the string of each alias's source key under the alias, where the dictionary holds the
+  /// source: a locale that lacks it reads both from the fallback locale.
+  /// </summary>
+  internal static void AddAliases(
+    Dictionary<string, string> dictionary,
+    IEnumerable<(string Key, string SourceKey)> aliases
+  ) {
+    foreach (var (key, sourceKey) in aliases) {
+      if (dictionary.TryGetValue(sourceKey, out var value)) {
+        dictionary[key] = value;
+      }
+    }
+  }
+
   private static void RefreshLocale() =>
     LocaleLoader.LoadLocale(GameManager.instance.localizationManager.activeLocaleId);
 
@@ -133,6 +184,8 @@ internal static class LocaleLoader {
       localeDictionary,
       key => gameDictionary.TryGetValue(key, out var value) ? value : null
     );
+
+    LocaleLoader.AddAliases(processedLocaleDictionary, LocaleLoader.settingsAliases);
 
     // Register the locale dictionary.
     GameManager.instance.localizationManager.AddSource(

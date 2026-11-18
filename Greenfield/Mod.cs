@@ -49,8 +49,12 @@ public sealed class Mod : IMod {
 
   public void OnLoad(UpdateSystem updateSystem) {
     try {
+      // Create the settings first: the locales derive the key bindings' strings from them.
+      this.settingsValue = new Settings(this);
+      var defaultSettings = this.settingsValue.Clone();
+
       // Set up locales.
-      LocaleLoader.Setup();
+      LocaleLoader.Setup(this.settingsValue);
 
       #if DEBUG
       // In debug mode, eagerly check reflection hacks are working, once locales are loaded so a
@@ -59,9 +63,6 @@ public sealed class Mod : IMod {
       #endif
 
       // Register settings UI and load settings.
-      this.settingsValue = new Settings(this);
-      var defaultSettings = this.settingsValue.Clone();
-
       this.settingsValue.RegisterInOptionsUI();
       this.settingsValue.RegisterKeyBindings();
 
