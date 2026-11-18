@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Colossal;
 using Colossal.Serialization.Entities;
@@ -5,6 +6,7 @@ using Colossal.TestFramework;
 using Game;
 using Game.City;
 using Game.SceneFlow;
+using Game.Simulation;
 using JetBrains.Annotations;
 
 namespace Greenfield.Scenarios;
@@ -21,6 +23,11 @@ namespace Greenfield.Scenarios;
 /// another log that names it.
 /// </summary>
 internal abstract class ModTestScenario : TestScenario {
+  /// <summary>
+  /// The Archipelago map, which the base game ships.
+  /// </summary>
+  protected static readonly Hash128 Archipelago = Hash128.Parse("bf8036b291428535b986c757fda3e627");
+
   // Counted by Check, reset before each test by ResetChecks.
   private int failedChecks;
 
@@ -28,7 +35,7 @@ internal abstract class ModTestScenario : TestScenario {
     var dismissed = TestScenarioSystem.ConsumeErrorCount();
 
     if (dismissed > 0) {
-      ModTestScenario.log.Warn(
+      TestScenario.log.Warn(
         $"Dismissed {dismissed} errors logged before the scenario started, by the game or a " +
         "mod: see Player.log and the mods' logs."
       );
@@ -46,14 +53,18 @@ internal abstract class ModTestScenario : TestScenario {
 
   /// <summary>
   /// Starts a new city on a map, with the options a new game takes from the new game screen, as the
-  /// game's own scenarios set them.
-  /// Settings a new city reads at creation, the starting year of the time system for one, are set
-  /// before it.
+  /// game's own scenarios set them, and returns once its load has ended.
+  /// The city starts in <paramref name="startingYear"/>, the current year by default.
   /// </summary>
-  protected async Task StartNewCity(Hash128 map, string cityName) {
+  protected async Task StartNewCity(Hash128 map, string cityName, int? startingYear = null) {
     // The load must start from the game's own loop: a load started from the caller of the scenario,
     // the unity eval for one, holds the main thread the load needs.
     await this.WaitFrames(2);
+
+    // The new game screen sets the starting year, which a scenario's load does not: left at zero,
+    // reading the city's date throws, for the game and every mod reading it.
+    this.World.GetExistingSystemManaged<TimeSystem>().startingYear =
+      startingYear ?? DateTime.Now.Year;
 
     var cityConfiguration = this.World.GetExistingSystemManaged<CityConfigurationSystem>();
 
@@ -65,6 +76,10 @@ internal abstract class ModTestScenario : TestScenario {
     if (!await GameManager.instance.Load(GameMode.Game, Purpose.NewGame, map)) {
       throw new TestScenarioException($"The new city on map {map} did not load.");
     }
+
+    // The load ends a few frames after it returns: the overlay goes, and the simulation takes its
+    // speed from the player's paused-after-loading setting, over any speed set before.
+    await this.WaitFrames(60);
   }
 
   /// <summary>
@@ -81,13 +96,13 @@ internal abstract class ModTestScenario : TestScenario {
   /// failed one.
   /// </summary>
   protected void Check(bool passed, string text) {
-    ModTestScenario.log.Info($"  [{(passed ? "PASSED" : "FAILED")}] {text}");
+    TestScenario.log.Info($"  [{(passed ? "PASSED" : "FAILED")}] {text}");
 
     this.failedChecks += passed ? 0 : 1;
   }
 
   /// <summary>
-  /// Fails the test when one of its checks failed: a test returns it at its end.
+  /// Fails the test when one of its checks failed: a test ends on it.
   /// The runner awaits a test returning a task, and reports the exception the task holds.
   /// </summary>
   protected Task Finish() =>

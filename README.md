@@ -202,7 +202,7 @@ The skills cover testing on each layer, translating, releasing and game updates,
 
 ### What it leaves out
 
-No Harmony, the library that patches game code at runtime: `AGENTS.md` sends you to the `cs2-modding` skill's patching reference for when a patch is warranted and how to add one.
+No Harmony, the library that patches game code at runtime: `AGENTS.md` sends you through the `cs2-modding` skill's working loop, which tries every other way to change the game first.
 No CI: a build needs the game's own assemblies, and the component tests need its UI bundle.
 
 ## 🧹 Deleting the sample feature

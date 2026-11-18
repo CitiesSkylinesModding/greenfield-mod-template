@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Colossal;
 using Colossal.TestFramework;
 using Game.Simulation;
 using Greenfield.Systems;
@@ -24,13 +23,6 @@ internal sealed class EntityCounterScenario : ModTestScenario {
   /// </summary>
   private const int StartingYear = 2042;
 
-  /// <summary>
-  /// Archipelago, a map of the base game, by the guid the game's own scenarios load it with.
-  /// </summary>
-  private static readonly Hash128 ArchipelagoGuid = Hash128.Parse(
-    "bf8036b291428535b986c757fda3e627"
-  );
-
   // Set in OnPrepare, which the runner awaits before any test: hence mutable, and null! until then.
   private EntityCounterSystem entityCounterSystem = null!;
 
@@ -44,15 +36,14 @@ internal sealed class EntityCounterScenario : ModTestScenario {
     this.entityCounterSystem = this.World.GetExistingSystemManaged<EntityCounterSystem>();
     this.savedCountedEntity = Mod.Settings.CountedEntity;
 
-    this.World.GetExistingSystemManaged<TimeSystem>().startingYear =
-      EntityCounterScenario.StartingYear;
-
-    await this.StartNewCity(EntityCounterScenario.ArchipelagoGuid, nameof(EntityCounterScenario));
+    await this.StartNewCity(
+      ModTestScenario.Archipelago,
+      nameof(EntityCounterScenario),
+      EntityCounterScenario.StartingYear
+    );
 
     // Paused, so no entity comes or goes between the system's count and the check's.
     this.World.GetExistingSystemManaged<SimulationSystem>().selectedSpeed = 0f;
-
-    await this.WaitFrames(60);
   }
 
   protected override Task OnCleanup() {
